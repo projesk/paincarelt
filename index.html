@@ -241,7 +241,56 @@
       <p id="scale-intro" class="hint"></p>
     </div>
 
-    <!-- Iowa/VDS/Faces/NRS – naudosim IPT-r logikai -->
+    <!-- Šakos pagal MMSE 18–23 -->
+    <div id="branch-18-23" class="card hidden">
+      <h3>Lengvi kognityviniai sutrikimai (MMSE 18–23)</h3>
+      <p class="hint">
+        Ar pacientas geba pažinti ir naudoti paprastą vizualinę ir žodinę informaciją?
+        (supranta skales, gali pasirinkti atsakymą).
+      </p>
+      <button class="primary-btn" onclick="branch1823('yes')">
+        Taip – naudoti Ajovos skales (Iowa, NRS ir kt.)
+      </button>
+      <button class="secondary-btn" onclick="branch1823('no')">
+        Ne – naudoti PAINAD skalę
+      </button>
+    </div>
+
+    <!-- Šakos pagal MMSE 0–17 -->
+    <div id="branch-0-17" class="card hidden">
+      <h3>Sunkūs kognityviniai sutrikimai (MMSE 0–17)</h3>
+      <p class="hint">
+        Pasirinkite, kokio tipo vertinimo šiuo metu reikia.
+      </p>
+      <button class="primary-btn" onclick="branch017Quick()">
+        Greitas skausmo įvertinimas (Abbey)
+      </button>
+      <button class="secondary-btn" onclick="branch017Detailed()">
+        Išsamus skausmo vertinimas
+      </button>
+    </div>
+
+    <div id="branch-0-17-paic" class="card hidden">
+      <h3>Išsamus vertinimas: PAIC-15</h3>
+      <p class="hint">
+        Ar mokate naudotis PAIC-15 skale?
+      </p>
+      <button class="primary-btn" onclick="branch017Paic('yes')">
+        Taip – naudoti PAIC-15 skalę
+      </button>
+      <button class="secondary-btn" onclick="branch017Paic('no')">
+        Ne – man reikia apmokymo
+      </button>
+      <p class="hint" style="margin-top:8px;">
+        PAIC-15 mokymai (anglų k.): 
+        <a href="https://paic15.org/en/1" target="_blank">https://paic15.org/en/1</a>.
+      </p>
+      <p class="hint">
+        Kol neišmokote naudotis PAIC-15, rekomenduojama naudoti Abbey skausmo skalę.
+      </p>
+    </div>
+
+    <!-- Iowa/VDS/Faces/NRS – IPT-r -->
     <div id="card-simple" class="card hidden">
       <h2>Iowa Pain Thermometer, VDS, Faces ir 0–10 NRS</h2>
 
@@ -433,39 +482,79 @@
     showScreen('screen-mmse');
   }
 
+  // pagrindinis maršrutizavimas pagal MMSE
   function routeByMmse(score) {
     const intro = document.getElementById('scale-intro');
 
-    // paslėpti visas skalės korteles
-    ['card-simple','card-dvprs','card-painad','card-paic','card-abbey','recommend-card']
+    // paslėpti visas skalės ir šakų korteles
+    ['card-simple','card-dvprs','card-painad','card-paic','card-abbey',
+     'recommend-card','branch-18-23','branch-0-17','branch-0-17-paic']
       .forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
 
-    let text = '';
     if (score >= 24) {
-      text =
+      intro.textContent =
         `MMSE ${score} – be kognityvinių sutrikimų (24–30 balai). ` +
         `Rekomenduojama naudoti skaitinę skausmo skalę papildytą funkciniais aprašymais – DVPRS.`;
       document.getElementById('card-dvprs').classList.remove('hidden');
     } else if (score >= 18) {
-      text =
+      intro.textContent =
         `MMSE ${score} – lengvi kognityviniai sutrikimai (18–23 balai). ` +
-        `Pacientams, kurie dar geba suprasti paprastą vizualinę ir žodinę informaciją, tinka Iowa Pain Thermometer / NRS. ` +
-        `Kai savivertinimas neįmanomas – naudokite PAINAD.`;
-      document.getElementById('card-simple').classList.remove('hidden');
-      document.getElementById('card-painad').classList.remove('hidden');
+        `Prieš parenkant skalę, įvertinkite, ar pacientas geba naudoti paprastą vizualinę ir žodinę informaciją.`;
+      document.getElementById('branch-18-23').classList.remove('hidden');
     } else {
-      text =
+      intro.textContent =
         `MMSE ${score} – sunkūs kognityviniai sutrikimai (0–17 balų). ` +
-        `Greitam skausmo įvertinimui naudokite Abbey skalę. Išsamesniam stebėjimui – PAIC-15.`;
-      document.getElementById('card-abbey').classList.remove('hidden');
-      document.getElementById('card-paic').classList.remove('hidden');
+        `Galite rinktis greitą Abbey įvertinimą arba išsamų stebėjimą (PAIC-15).`;
+      document.getElementById('branch-0-17').classList.remove('hidden');
     }
 
-    intro.textContent = text;
     showScreen('screen-scales');
+  }
+
+  // Šaka 18–23: Ajovos / PAINAD pasirinkimas
+  function branch1823(answer) {
+    // paslėpti abu, kad būtų galima pakeisti nuomonę
+    const simple = document.getElementById('card-simple');
+    const painad = document.getElementById('card-painad');
+    simple.classList.add('hidden');
+    painad.classList.add('hidden');
+
+    if (answer === 'yes') {
+      simple.classList.remove('hidden');
+    } else {
+      painad.classList.remove('hidden');
+    }
+  }
+
+  // Šaka 0–17: greitas / išsamus
+  function branch017Quick() {
+    document.getElementById('branch-0-17-paic').classList.add('hidden');
+    document.getElementById('card-paic').classList.add('hidden');
+    document.getElementById('card-abbey').classList.remove('hidden');
+  }
+
+  function branch017Detailed() {
+    document.getElementById('branch-0-17-paic').classList.remove('hidden');
+    // kol kas skalės nerodom, kol neatsakytas klausimas apie PAIC
+    document.getElementById('card-abbey').classList.add('hidden');
+    document.getElementById('card-paic').classList.add('hidden');
+  }
+
+  function branch017Paic(answer) {
+    const paicCard = document.getElementById('card-paic');
+    const abbeyCard = document.getElementById('card-abbey');
+
+    paicCard.classList.add('hidden');
+    abbeyCard.classList.add('hidden');
+
+    if (answer === 'yes') {
+      paicCard.classList.remove('hidden');
+    } else {
+      abbeyCard.classList.remove('hidden');
+    }
   }
 
   // ---------- MMSE FORMA ----------
