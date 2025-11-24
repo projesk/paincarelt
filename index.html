@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="lt">
 <head>
-  <meta charset="UTF-8">
-  <title>PainCare LT – geriatrinio paciento skausmo vertinimas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>PainCare LT – Geriatrinio paciento skausmo vertinimas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -109,6 +109,7 @@
       font-size: 0.78rem;
       margin-left: 6px;
     }
+
     #paic-result-box,
     #abbey-result-box,
     #painad-result-box,
@@ -148,6 +149,19 @@
 
     .hidden { display:none; }
 
+    .mmse-figure-box {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #f1f2f6;
+      display: inline-block;
+    }
+    .mmse-figure-box p {
+      margin: 0 0 6px 0;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
     @media (max-width: 800px) {
       .radio-row {
         grid-template-columns: 30px 1fr;
@@ -168,40 +182,38 @@
     }
   </style>
 </head>
+
 <body>
 <div class="app">
 
-  <!-- SCREEN 1: PRADŽIA / MMSE ĮVEDIMAS -->
+  <!-- SCREEN 1: PRADŽIA -->
   <div id="screen-start">
     <div class="card">
       <h1>PainCare LT</h1>
       <p class="hint">
-        1 žingsnis – įvertinkite kognityvinę būklę (MMSE), 2 žingsnis – automatiškai parenkama tinkama skausmo skalė,
-        3 žingsnis – pateikiamos skausmo malšinimo rekomendacijos.
+        1 žingsnis – įveskite MMSE balus<br>
+        2 žingsnis – programa parinks skausmo skalę<br>
+        3 žingsnis – parodys skausmo intensyvumą ir rekomendacijas
       </p>
 
       <h2>1. Koks paciento MMSE balas?</h2>
       <label>
         MMSE balai (0–30):
-        <input type="number" id="start-mmse" min="0" max="30" step="1" />
+        <input type="number" id="start-mmse" min="0" max="30" step="1">
       </label>
 
       <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
       <button class="secondary-btn" onclick="goToMmseForm()">Nežinau – atlikti MMSE testą</button>
-
-      <p class="hint" style="margin-top:8px;">
-        Jei MMSE jau įvertintas anksčiau, galite tiesiog įrašyti sumą ir spausti „Tęsti“.
-      </p>
     </div>
   </div>
 
-  <!-- SCREEN 2: MMSE KLAUSIMYNAS -->
+  <!-- SCREEN 2: MMSE FORMA -->
   <div id="screen-mmse" class="hidden">
     <div class="card">
-      <h2>MMSE – lietuviška skaitmeninė forma</h2>
+      <h2>MMSE – Mini psichikos būklės įvertinimas</h2>
       <p class="hint">
-        Kiekvienam punktui pažymėkite, ar atsakymas teisingas (1 balas) ar neteisingas (0).
-        Paspaudus „Apskaičiuoti ir tęsti“, bendra suma bus panaudota tolesniam skausmo algoritmui.
+        Kiekvienam punktui pasirinkite „Teisingai (1 balas)“ arba „Neteisingai / neatliko (0 balų)“. <br>
+        Paspaudus „Apskaičiuoti MMSE ir tęsti“, bendra suma bus naudojama skausmo skalės parinkimui.
       </p>
 
       <div class="radio-row radio-header">
@@ -213,6 +225,18 @@
 
       <div id="mmse-form-items"></div>
 
+      <div class="mmse-figure-box">
+        <p>Pavyzdinė figūra, kurią pacientas turi nukopijuoti (2 persidengiantys penkiakampiai):</p>
+        <svg width="180" height="120" viewBox="0 0 180 120">
+          <!-- pirmas penkiakampis -->
+          <polygon points="60,15 25,50 38,95 82,95 95,50"
+                   fill="none" stroke="#333" stroke-width="2"/>
+          <!-- antras, šiek tiek paslinktas -->
+          <polygon points="110,25 75,60 88,105 132,105 145,60"
+                   fill="none" stroke="#333" stroke-width="2"/>
+        </svg>
+      </div>
+
       <button class="primary-btn" onclick="calculateMmseFromForm(true)">
         Apskaičiuoti MMSE ir tęsti
       </button>
@@ -222,121 +246,102 @@
 
       <div id="mmse-form-result" style="display:none; margin-top:10px; border-left:4px solid #4b7bec; padding-left:12px;">
         <p id="mmse-form-main"></p>
-        <p class="hint">
-          Suma automatiškai naudojama skausmo skalės parinkimui pagal algoritmą.
-        </p>
       </div>
-
-      <p class="hint" style="margin-top:10px;">
-        Prireikus galite naudoti ir originalų PDF (anglų k.):
-        <a href="https://cgatoolkit.ca/Uploads/ContentDocuments/MMSE.pdf" target="_blank">MMSE PDF</a>
-      </p>
     </div>
   </div>
 
-  <!-- SCREEN 3: SKAUSMO SKALĖS + REKOMENDACIJOS -->
+  <!-- SCREEN 3: SKAUSMO SKALĖS -->
   <div id="screen-scales" class="hidden">
     <div class="card">
-      <h2>2. Skausmo vertinimas pagal MMSE</h2>
+      <h2>2. Skausmo skalės parinkimas</h2>
       <p id="scale-intro" class="hint"></p>
     </div>
 
-    <!-- Šakos pagal MMSE 18–23 -->
+    <!-- ŠAKA: 18–23 balai -->
     <div id="branch-18-23" class="card hidden">
       <h3>Lengvi kognityviniai sutrikimai (MMSE 18–23)</h3>
       <p class="hint">
-        Ar pacientas geba pažinti ir naudoti paprastą vizualinę ir žodinę informaciją?
-        (supranta skales, gali pasirinkti atsakymą).
+        Ar pacientas geba suprasti ir naudoti paprastą vizualinę ir žodinę informaciją (skales, paveikslėlius, žodinius aprašymus)?
       </p>
       <button class="primary-btn" onclick="branch1823('yes')">
-        Taip – naudoti Ajovos skales (Iowa, NRS ir kt.)
+        Taip – naudoti vizualines skales (Iowa, VDS, Veidukai, NRS)
       </button>
       <button class="secondary-btn" onclick="branch1823('no')">
-        Ne – naudoti PAINAD skalę
+        Ne – naudoti PAINAD (stebėjimu pagrįsta skalė)
       </button>
     </div>
 
-    <!-- Šakos pagal MMSE 0–17 -->
+    <!-- ŠAKA: 0–17 balai -->
     <div id="branch-0-17" class="card hidden">
       <h3>Sunkūs kognityviniai sutrikimai (MMSE 0–17)</h3>
-      <p class="hint">
-        Pasirinkite, kokio tipo vertinimo šiuo metu reikia.
-      </p>
+      <p class="hint">Pasirinkite vertinimo tipą:</p>
       <button class="primary-btn" onclick="branch017Quick()">
-        Greitas skausmo įvertinimas (Abbey)
+        Greitas skausmo įvertinimas (Abbey skalė)
       </button>
       <button class="secondary-btn" onclick="branch017Detailed()">
-        Išsamus skausmo vertinimas
+        Išsamus stebėjimu pagrįstas vertinimas (PAIC-15)
       </button>
     </div>
 
+    <!-- ŠAKA: PAIC taip / ne -->
     <div id="branch-0-17-paic" class="card hidden">
-      <h3>Išsamus vertinimas: PAIC-15</h3>
-      <p class="hint">
-        Ar mokate naudotis PAIC-15 skale?
-      </p>
+      <h3>Išsamus vertinimas</h3>
+      <p class="hint">Ar mokate naudoti PAIC-15 skalę?</p>
       <button class="primary-btn" onclick="branch017Paic('yes')">
-        Taip – naudoti PAIC-15 skalę
+        Taip – naudoti PAIC-15
       </button>
       <button class="secondary-btn" onclick="branch017Paic('no')">
-        Ne – man reikia apmokymo
+        Ne – reikia apmokymo (naudokite Abbey skalę)
       </button>
       <p class="hint" style="margin-top:8px;">
-        PAIC-15 mokymai (anglų k.): 
-        <a href="https://paic15.org/en/1" target="_blank">https://paic15.org/en/1</a>.
-      </p>
-      <p class="hint">
-        Kol neišmokote naudotis PAIC-15, rekomenduojama naudoti Abbey skausmo skalę.
+        PAIC-15 mokymai (anglų k.): <a href="https://paic15.org/en/1" target="_blank">https://paic15.org/en/1</a><br>
+        Kol neišmokote – rinkitės Abbey skausmo skalę.
       </p>
     </div>
 
-    <!-- Iowa/VDS/Faces/NRS – IPT-r -->
+    <!-- SIMPLE: Iowa, VDS, Faces, NRS -->
     <div id="card-simple" class="card hidden">
-      <h2>Iowa Pain Thermometer, VDS, Faces ir 0–10 NRS</h2>
+      <h2>Iowa termometras, žodinė skalė, veidukai ir NRS</h2>
 
-      <!-- Iowa -->
       <h3>Iowa Pain Thermometer</h3>
-      <p class="hint">Pasirinkite vieną teiginį, kuris geriausiai atitinka skausmą.</p>
+      <p class="hint">Pasirinkite vieną teiginį, kuris geriausiai atitinka paciento skausmą.</p>
       <div class="radio-group">
-        <label><input type="radio" name="iowa-thermo" value="0"> No pain</label>
-        <label><input type="radio" name="iowa-thermo" value="1"> Slight pain</label>
-        <label><input type="radio" name="iowa-thermo" value="2"> Mild pain</label>
-        <label><input type="radio" name="iowa-thermo" value="3"> Moderate pain</label>
-        <label><input type="radio" name="iowa-thermo" value="4"> Severe pain</label>
-        <label><input type="radio" name="iowa-thermo" value="5"> Very severe pain</label>
-        <label><input type="radio" name="iowa-thermo" value="6"> The most intense pain imaginable</label>
+        <label><input type="radio" name="iowa-thermo" value="0"> 0 – Nėra skausmo</label>
+        <label><input type="radio" name="iowa-thermo" value="1"> 1 – Vos juntamas skausmas</label>
+        <label><input type="radio" name="iowa-thermo" value="2"> 2 – Lengvas skausmas</label>
+        <label><input type="radio" name="iowa-thermo" value="3"> 3 – Vidutinio stiprumo skausmas</label>
+        <label><input type="radio" name="iowa-thermo" value="4"> 4 – Stiprus skausmas</label>
+        <label><input type="radio" name="iowa-thermo" value="5"> 5 – Labai stiprus skausmas</label>
+        <label><input type="radio" name="iowa-thermo" value="6"> 6 – Smarkiausias įsivaizduojamas skausmas</label>
       </div>
 
       <hr style="margin:14px 0; border:none; border-top:1px solid #eee;">
 
-      <!-- VDS -->
-      <h3>Verbal Descriptor Scale (VDS)</h3>
-      <p class="hint">0 – none, 1 – mild, 2 – moderate, 3 – severe.</p>
+      <h3>Žodinė skausmo skalė (VDS)</h3>
+      <p class="hint">0 – nėra, 1 – lengvas, 2 – vidutinis, 3 – stiprus skausmas.</p>
       <div class="radio-group">
-        <label><input type="radio" name="vds" value="0"> 0 – None</label>
-        <label><input type="radio" name="vds" value="1"> 1 – Mild</label>
-        <label><input type="radio" name="vds" value="2"> 2 – Moderate</label>
-        <label><input type="radio" name="vds" value="3"> 3 – Severe</label>
+        <label><input type="radio" name="vds" value="0"> 0 – Nėra</label>
+        <label><input type="radio" name="vds" value="1"> 1 – Lengvas</label>
+        <label><input type="radio" name="vds" value="2"> 2 – Vidutinis</label>
+        <label><input type="radio" name="vds" value="3"> 3 – Stiprus</label>
       </div>
 
       <hr style="margin:14px 0; border:none; border-top:1px solid #eee;">
 
-      <!-- Faces -->
-      <h3>Faces Pain Scale – Revised (FPS-R)</h3>
-      <p class="hint">Balai: 0, 2, 4, 6, 8, 10 (atitinka veidukus).</p>
+      <h3>Veidukų skausmo skalė (FPS-R)</h3>
+      <p class="hint">Balai: 0, 2, 4, 6, 8, 10 (nuo „nėra skausmo“ iki „labai stiprus skausmas“).</p>
       <div class="radio-group">
-        <label><input type="radio" name="faces" value="0"> 0</label>
-        <label><input type="radio" name="faces" value="2"> 2</label>
-        <label><input type="radio" name="faces" value="4"> 4</label>
-        <label><input type="radio" name="faces" value="6"> 6</label>
-        <label><input type="radio" name="faces" value="8"> 8</label>
-        <label><input type="radio" name="faces" value="10"> 10</label>
+        <label><input type="radio" name="faces" value="0"> 0 – Nėra</label>
+        <label><input type="radio" name="faces" value="2"> 2 – Labai lengvas</label>
+        <label><input type="radio" name="faces" value="4"> 4 – Lengvas</label>
+        <label><input type="radio" name="faces" value="6"> 6 – Vidutinis</label>
+        <label><input type="radio" name="faces" value="8"> 8 – Stiprus</label>
+        <label><input type="radio" name="faces" value="10"> 10 – Labai stiprus</label>
       </div>
 
       <hr style="margin:14px 0; border:none; border-top:1px solid #eee;">
 
-      <!-- NRS -->
-      <h3>0–10 Numeric Rating Scale (NRS)</h3>
+      <h3>0–10 skaitinė skausmo skalė (NRS)</h3>
       <p class="hint">0 – nėra skausmo, 10 – blogiausias įsivaizduojamas skausmas.</p>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <input type="range" id="nrs-slider" min="0" max="10" value="0"
@@ -344,7 +349,9 @@
         <span><strong>NRS:</strong> <span id="nrs-value">0</span> / 10</span>
       </div>
 
-      <button class="primary-btn" onclick="summarizeSimpleScales()">Skaičiuoti / apibendrinti</button>
+      <button class="primary-btn" onclick="summarizeSimpleScales()">
+        Skaičiuoti ir apibendrinti
+      </button>
 
       <div id="simple-scales-result" style="display:none;">
         <p id="simple-scales-main"></p>
@@ -354,8 +361,10 @@
 
     <!-- DVPRS -->
     <div id="card-dvprs" class="card hidden">
-      <h2>DVPRS – Defense and Veterans Pain Rating Scale</h2>
-      <p class="hint">Pacientas pasirenka skaičių nuo 0 iki 10.</p>
+      <h2>DVPRS – skaitinė skausmo skalė su aprašymais</h2>
+      <p class="hint">
+        Pacientas pasirenka skaičių nuo 0 iki 10, kuris daugiausiai atitinka jo skausmą ir poveikį veiklai.
+      </p>
       <div id="dvprs-options" class="dvprs-grid"></div>
       <button class="primary-btn" onclick="calculateDvprs()">Skaičiuoti DVPRS</button>
       <div id="dvprs-result-box" style="display:none;">
@@ -366,14 +375,14 @@
 
     <!-- PAINAD -->
     <div id="card-painad" class="card hidden">
-      <h2>PAINAD (Pain Assessment in Advanced Dementia)</h2>
+      <h2>PAINAD – pažengusios demencijos skausmo skalė</h2>
       <p class="hint">
-        Stebėkite pacientą bent 5 minutes. Kiekvienam punktui pasirinkite 0, 1 ar 2.
+        Stebėkite pacientą ~5 minutes. Kiekvienam punktui pasirinkite 0–2 balus.
       </p>
 
       <div class="radio-row radio-header">
         <div>#</div>
-        <div>Elgesys</div>
+        <div>Elgesio sritis</div>
         <div>Pavyzdžiai</div>
         <div>Balai (0–2)</div>
       </div>
@@ -390,7 +399,7 @@
 
     <!-- PAIC-15 -->
     <div id="card-paic" class="card hidden">
-      <h2>PAIC-15 skaitmeninė skalė</h2>
+      <h2>PAIC-15 – stebėjimu pagrįsta skausmo skalė</h2>
       <p class="hint">
         0 – nėra, 1 – šiek tiek, 2 – vidutinis, 3 – ryškus, X – nevertinta.
       </p>
@@ -414,7 +423,7 @@
 
     <!-- ABBEY -->
     <div id="card-abbey" class="card hidden">
-      <h2>Abbey Pain Scale</h2>
+      <h2>Abbey skausmo skalė</h2>
       <p class="hint">
         0 – nėra, 1 – lengvi, 2 – vidutiniai, 3 – ryškūs požymiai.
       </p>
@@ -430,9 +439,9 @@
 
       <h3>Skausmo tipas</h3>
       <div class="radio-group">
-        <label><input type="radio" name="abbey-type" value="Chronic"> Chronic</label>
-        <label><input type="radio" name="abbey-type" value="Acute"> Acute</label>
-        <label><input type="radio" name="abbey-type" value="Acute on chronic"> Acute on chronic</label>
+        <label><input type="radio" name="abbey-type" value="Chronic"> Lėtinis</label>
+        <label><input type="radio" name="abbey-type" value="Acute"> Ūminis</label>
+        <label><input type="radio" name="abbey-type" value="Acute on chronic"> Ūminis lėtinio fone</label>
       </div>
 
       <button class="primary-btn" onclick="calculateAbbey()">Skaičiuoti Abbey sumą</button>
@@ -467,7 +476,6 @@
     });
   }
 
-  // ---------- PRADINIS MMSE ĮVEDIMAS ----------
   function handleStartWithMmse() {
     const val = Number(document.getElementById('start-mmse').value);
     if (isNaN(val) || val < 0 || val > 30) {
@@ -482,11 +490,9 @@
     showScreen('screen-mmse');
   }
 
-  // pagrindinis maršrutizavimas pagal MMSE
   function routeByMmse(score) {
     const intro = document.getElementById('scale-intro');
 
-    // paslėpti visas skalės ir šakų korteles
     ['card-simple','card-dvprs','card-painad','card-paic','card-abbey',
      'recommend-card','branch-18-23','branch-0-17','branch-0-17-paic']
       .forEach(id => {
@@ -496,27 +502,25 @@
 
     if (score >= 24) {
       intro.textContent =
-        `MMSE ${score} – be kognityvinių sutrikimų (24–30 balai). ` +
-        `Rekomenduojama naudoti skaitinę skausmo skalę papildytą funkciniais aprašymais – DVPRS.`;
+        `MMSE ${score} – be reikšmingų kognityvinių sutrikimų (24–30 balai). ` +
+        `Rekomenduojama naudoti DVPRS – skaitinę skausmo skalę su funkciniais aprašymais.`;
       document.getElementById('card-dvprs').classList.remove('hidden');
     } else if (score >= 18) {
       intro.textContent =
         `MMSE ${score} – lengvi kognityviniai sutrikimai (18–23 balai). ` +
-        `Prieš parenkant skalę, įvertinkite, ar pacientas geba naudoti paprastą vizualinę ir žodinę informaciją.`;
+        `Prieš parenkant skalę įvertinkite, ar pacientas supranta paprastą vizualinę ir žodinę informaciją.`;
       document.getElementById('branch-18-23').classList.remove('hidden');
     } else {
       intro.textContent =
         `MMSE ${score} – sunkūs kognityviniai sutrikimai (0–17 balų). ` +
-        `Galite rinktis greitą Abbey įvertinimą arba išsamų stebėjimą (PAIC-15).`;
+        `Galite rinktis greitą Abbey įvertinimą arba išsamų stebėjimu pagrįstą PAIC-15 vertinimą.`;
       document.getElementById('branch-0-17').classList.remove('hidden');
     }
 
     showScreen('screen-scales');
   }
 
-  // Šaka 18–23: Ajovos / PAINAD pasirinkimas
   function branch1823(answer) {
-    // paslėpti abu, kad būtų galima pakeisti nuomonę
     const simple = document.getElementById('card-simple');
     const painad = document.getElementById('card-painad');
     simple.classList.add('hidden');
@@ -529,7 +533,6 @@
     }
   }
 
-  // Šaka 0–17: greitas / išsamus
   function branch017Quick() {
     document.getElementById('branch-0-17-paic').classList.add('hidden');
     document.getElementById('card-paic').classList.add('hidden');
@@ -538,7 +541,6 @@
 
   function branch017Detailed() {
     document.getElementById('branch-0-17-paic').classList.remove('hidden');
-    // kol kas skalės nerodom, kol neatsakytas klausimas apie PAIC
     document.getElementById('card-abbey').classList.add('hidden');
     document.getElementById('card-paic').classList.add('hidden');
   }
@@ -546,7 +548,6 @@
   function branch017Paic(answer) {
     const paicCard = document.getElementById('card-paic');
     const abbeyCard = document.getElementById('card-abbey');
-
     paicCard.classList.add('hidden');
     abbeyCard.classList.add('hidden');
 
@@ -557,7 +558,8 @@
     }
   }
 
-  // ---------- MMSE FORMA ----------
+  /* MMSE ITEMS (LT) */
+
   const mmseFormItems = [
     { id: 'year', idx: 1,  section: 'Orientacija laike',
       title: 'Metai', meaning: 'Teisingai pasako, kokie dabar metai.' },
@@ -571,22 +573,22 @@
       title: 'Savaitės diena', meaning: 'Teisingai įvardija savaitės dieną.' },
 
     { id: 'country', idx: 6, section: 'Orientacija vietoje',
-      title: 'Šalis', meaning: 'Teisingai pasako šalį.' },
+      title: 'Šalis', meaning: 'Teisingai pasako, kokioje šalyje yra.' },
     { id: 'region', idx: 7, section: 'Orientacija vietoje',
-      title: 'Apskritis / regionas', meaning: 'Teisingai įvardija apskritį ar regioną.' },
+      title: 'Apskritis / regionas', meaning: 'Teisingai nurodo regioną / apskritį.' },
     { id: 'city', idx: 8, section: 'Orientacija vietoje',
       title: 'Miestas / miestelis', meaning: 'Teisingai pasako miestą.' },
     { id: 'institution', idx: 9, section: 'Orientacija vietoje',
       title: 'Įstaiga', meaning: 'Ligoninė, slaugos namai ir pan.' },
     { id: 'ward', idx: 10, section: 'Orientacija vietoje',
-      title: 'Skyrius / aukštas / palata', meaning: 'Teisingai nurodo vietą įstaigos viduje.' },
+      title: 'Skyrius / palata', meaning: 'Teisingai nurodo skyrių / palatą / aukštą.' },
 
     { id: 'reg1', idx: 11, section: 'Įsiminimas (3 žodžiai)',
-      title: 'Žodis 1', meaning: 'Pvz., „stalas“ – iškart pakartoja teisingai.' },
+      title: 'Žodis 1', meaning: 'Pvz., „stalas“ – iš karto pakartoja teisingai.' },
     { id: 'reg2', idx: 12, section: 'Įsiminimas (3 žodžiai)',
-      title: 'Žodis 2', meaning: 'Pvz., „namas“ – iškart pakartoja teisingai.' },
+      title: 'Žodis 2', meaning: 'Pvz., „namas“ – iš karto pakartoja teisingai.' },
     { id: 'reg3', idx: 13, section: 'Įsiminimas (3 žodžiai)',
-      title: 'Žodis 3', meaning: 'Pvz., „gėlė“ – iškart pakartoja teisingai.' },
+      title: 'Žodis 3', meaning: 'Pvz., „gėlė“ – iš karto pakartoja teisingai.' },
 
     { id: 'calc1', idx: 14, section: 'Dėmesys ir skaičiavimas',
       title: '100–7', meaning: 'Apskaičiuoja 93.' },
@@ -600,19 +602,19 @@
       title: '72–7', meaning: 'Apskaičiuoja 65.' },
 
     { id: 'rec1', idx: 19, section: 'Atsiminimas',
-      title: 'Prisimena žodį 1', meaning: 'Po kelių minučių prisimena 1-ą žodį.' },
+      title: 'Prisimena žodį 1', meaning: 'Po kelių minučių prisimena pirmą žodį.' },
     { id: 'rec2', idx: 20, section: 'Atsiminimas',
-      title: 'Prisimena žodį 2', meaning: 'Po kelių minučių prisimena 2-ą žodį.' },
+      title: 'Prisimena žodį 2', meaning: 'Po kelių minučių prisimena antrą žodį.' },
     { id: 'rec3', idx: 21, section: 'Atsiminimas',
-      title: 'Prisimena žodį 3', meaning: 'Po kelių minučių prisimena 3-ą žodį.' },
+      title: 'Prisimena žodį 3', meaning: 'Po kelių minučių prisimena trečią žodį.' },
 
     { id: 'name-watch', idx: 22, section: 'Kalba – įvardijimas',
-      title: 'Pavadina laikrodį', meaning: 'Parodžius laikrodį.' },
+      title: 'Pavadina laikrodį', meaning: 'Parodžius laikrodį, teisingai įvardija daiktą.' },
     { id: 'name-pencil', idx: 23, section: 'Kalba – įvardijimas',
-      title: 'Pavadina pieštuką', meaning: 'Parodžius pieštuką.' },
+      title: 'Pavadina pieštuką', meaning: 'Parodžius pieštuką, teisingai įvardija daiktą.' },
 
     { id: 'repeat-phrase', idx: 24, section: 'Kalba – kartojimas',
-      title: 'Pakartoja sakinį', meaning: 'Pvz., „Ne jei, o ir“ – pakartoja tiksliai.' },
+      title: 'Pakartoja sakinį', meaning: 'Teisingai pakartoja pateiktą sakinį (pvz., „Ne jei, o ir“).' },
 
     { id: 'command1', idx: 25, section: 'Kalba – vykdymas',
       title: 'Paimti lapą', meaning: 'Atlieka 1-ą komandą.' },
@@ -622,11 +624,15 @@
       title: 'Padėti ant grindų', meaning: 'Atlieka 3-ią komandą.' },
 
     { id: 'read-close-eyes', idx: 28, section: 'Skaitymas',
-      title: 'Perskaito ir įvykdo „UŽDARYKITE AKIS“', meaning: 'Perskaito užrašą ir užmerkia akis.' },
+      title: 'Perskaito ir įvykdo „UŽDARYKITE AKIS“',
+      meaning: 'Perskaito frazę ir trumpam užmerkia akis.' },
+
     { id: 'write-sentence', idx: 29, section: 'Rašymas',
-      title: 'Parašo sakinį', meaning: 'Sakinys turi turėti prasmę, parašytas savarankiškai.' },
+      title: 'Parašo sakinį', meaning: 'Savavališkai parašo prasmingą sakinį.' },
+
     { id: 'copy-figure', idx: 30, section: 'Kopijavimas',
-      title: 'Nukopijuoja figūrą', meaning: 'Teisingai nukopijuoja figūrą.' }
+      title: 'Nukopijuoja figūrą',
+      meaning: 'Nukopijuoja pavyzdinę figūrą (2 persidengiantys penkiakampiai), parodytą žemiau.' }
   ];
 
   const mmseFormContainer = document.getElementById('mmse-form-items');
@@ -652,7 +658,7 @@
 
     const title = document.createElement('div');
     title.className = 'item-title';
-    title.innerHTML = `<strong>${item.title}</strong>`;
+    title.innerHTML = '<strong>' + item.title + '</strong>';
     row.appendChild(title);
 
     const meaning = document.createElement('div');
@@ -696,8 +702,8 @@
     const box = document.getElementById('mmse-form-result');
     const main = document.getElementById('mmse-form-main');
     main.innerHTML =
-      `<strong>MMSE iš skaitmeninės formos: ${total} balai.</strong>` +
-      ` <span class="badge">Nepildytų punktų: ${unanswered}</span>`;
+      '<strong>MMSE suma: ' + total + ' balai.</strong>' +
+      ' <span class="badge">Nepildytų punktų: ' + unanswered + '</span>';
     box.style.display = 'block';
 
     if (continueToScales && !isNaN(total)) {
@@ -705,55 +711,56 @@
     }
   }
 
-  // ---------- PAIC-15 ----------
+  /* PAIC-15 */
+
   const paicItems = [
     { id: 'frowning', group: 'Veido išraiška', idx: 1,
-      title: 'Frowning',
-      meaning: 'Lowering and drawing brows together' },
+      title: 'Suraukta kakta (Frowning)',
+      meaning: 'Antakiai suraukti ir nuleisti.' },
     { id: 'narrowing-eyes', group: 'Veido išraiška', idx: 2,
-      title: 'Narrowing eyes',
-      meaning: 'Narrowed eyes with tension around the eyes' },
+      title: 'Primerktos akys (Narrowing eyes)',
+      meaning: 'Akys primerktos, aplink akis – įtampa.' },
     { id: 'raising-upper-lip', group: 'Veido išraiška', idx: 3,
-      title: 'Raising upper lip',
-      meaning: 'Upper lip raised, nose may be wrinkled' },
+      title: 'Pakeltas viršutinis lūpos kampas (Raising upper lip)',
+      meaning: 'Viršutinė lūpa pakelta, nosis gali būti susiraukusi.' },
     { id: 'opening-mouth', group: 'Veido išraiška', idx: 4,
-      title: 'Opening mouth',
-      meaning: 'The lips are parted, jaw is dropped' },
+      title: 'Praveriama burna (Opening mouth)',
+      meaning: 'Lūpos praveriamos, žandikaulis nuleistas.' },
     { id: 'looking-tense', group: 'Veido išraiška', idx: 5,
-      title: 'Looking tense',
-      meaning: 'Facial display of strain or worry' },
+      title: 'Įtempta veido išraiška (Looking tense)',
+      meaning: 'Veidas išduoda įtampą, nerimą ar diskomfortą.' },
 
     { id: 'freezing', group: 'Kūno judesiai', idx: 6,
-      title: 'Freezing',
-      meaning: 'Stiffening, avoiding movement, holding breath' },
+      title: 'Sustabarėjimas / fiksacija (Freezing)',
+      meaning: 'Kūnas sustingęs, vengia judesių, sulaiko kvėpavimą.' },
     { id: 'guarding', group: 'Kūno judesiai', idx: 7,
-      title: 'Guarding',
-      meaning: 'Protecting affected area, holding body part, avoiding touch, moving away' },
+      title: 'Apsauginiai judesiai (Guarding)',
+      meaning: 'Saugoma skaudanti vieta, vengiamas prisilietimas, traukiasi atgal.' },
     { id: 'resisting-care', group: 'Kūno judesiai', idx: 8,
-      title: 'Resisting care',
-      meaning: 'Resisting being moved or resisting care, being uncooperative' },
+      title: 'Priešinimasis priežiūrai (Resisting care)',
+      meaning: 'Priešinasi judinimui, procedūroms, yra nekooperuojantis.' },
     { id: 'rubbing', group: 'Kūno judesiai', idx: 9,
-      title: 'Rubbing',
-      meaning: 'Tugging or massaging affected area' },
+      title: 'Trinimas / masažavimas (Rubbing)',
+      meaning: 'Trina, spaudo ar masažuoja skaudamą vietą.' },
     { id: 'restlessness', group: 'Kūno judesiai', idx: 10,
-      title: 'Restlessness',
-      meaning: 'Fidgeting, wringing hands, rocking back and forth' },
+      title: 'Nerimastingumas (Restlessness)',
+      meaning: 'Blaškosi, juda pirmyn–atgal, suka rankas, linguoja.' },
 
     { id: 'pain-words', group: 'Vokalizacija', idx: 11,
-      title: 'Using pain-related words',
-      meaning: 'Using pain words like “ouch”, “ow”, or “that hurts”' },
+      title: 'Skausmo žodžiai (Using pain-related words)',
+      meaning: 'Sako „oi“, „au“, „skauda“ ir pan.' },
     { id: 'shouting', group: 'Vokalizacija', idx: 12,
-      title: 'Shouting',
-      meaning: 'Using a loud voice to express words' },
+      title: 'Šaukimas (Shouting)',
+      meaning: 'Keliamas balsas, šaukimas.' },
     { id: 'groaning', group: 'Vokalizacija', idx: 13,
-      title: 'Groaning',
-      meaning: 'Making a deep, inarticulate sound' },
+      title: 'Dejavimas / stenėjimas (Groaning)',
+      meaning: 'Leidžia gilius, neartikuliuotus garsus.' },
     { id: 'mumbling', group: 'Vokalizacija', idx: 14,
-      title: 'Mumbling',
-      meaning: 'Uttering words and/or sounds indistinctly' },
+      title: 'Murmėjimas (Mumbling)',
+      meaning: 'Neaiškiai murma, niurna.' },
     { id: 'complaining', group: 'Vokalizacija', idx: 15,
-      title: 'Complaining',
-      meaning: 'Expressing being unhappy, sick, uncomfortable, and/or in pain' }
+      title: 'Skundimasis (Complaining)',
+      meaning: 'Skundžiasi diskomfortu, bloga savijauta, skausmu.' }
   ];
 
   const paicContainer = document.getElementById('paic-items');
@@ -779,7 +786,7 @@
 
     const title = document.createElement('div');
     title.className = 'item-title';
-    title.innerHTML = `<strong>${item.title}</strong>`;
+    title.innerHTML = '<strong>' + item.title + '</strong>';
     row.appendChild(title);
 
     const meaning = document.createElement('div');
@@ -838,27 +845,28 @@
       levelKey = 'severe';
     }
 
-    main.innerHTML = `<strong>Bendra PAIC suma: ${total} balai.</strong>`;
-    interp.innerHTML = text + ` <span class="badge">Neįvertintų / X punktų: ${notScored}</span>`;
+    main.innerHTML = '<strong>Bendra PAIC suma: ' + total + ' balai.</strong>';
+    interp.innerHTML = text + ' <span class="badge">Neįvertintų / X punktų: ' + notScored + '</span>';
     box.style.display = 'block';
 
     showRecommendations(levelKey);
   }
 
-  // ---------- ABBEY ----------
+  /* ABBEY */
+
   const abbeyItems = [
-    { id: 'vocalisation',      idx: 1, title: 'Vocalisation',
-      meaning: 'Whimpering, groaning, crying' },
-    { id: 'facial-expression', idx: 2, title: 'Facial expression',
-      meaning: 'Looking tense, frowning, grimacing, looking frightened' },
-    { id: 'body-language',     idx: 3, title: 'Change in body language',
-      meaning: 'Fidgeting, rocking, guarding part of body, withdrawn' },
-    { id: 'behavioural-change',idx: 4, title: 'Behavioural change',
-      meaning: 'Increased confusion, refusing to eat, alteration in usual patterns' },
-    { id: 'physiological-change', idx: 5, title: 'Physiological change',
-      meaning: 'Temperature, pulse or blood pressure outside normal limits; perspiring; flushing or pallor' },
-    { id: 'physical-changes',  idx: 6, title: 'Physical changes',
-      meaning: 'Skin tears, pressure areas, arthritis, contractures, previous injuries' }
+    { id: 'vocalisation', idx: 1, title: 'Vokalizacija',
+      meaning: 'Dejavimas, stenėjimas, verksmas.' },
+    { id: 'facial-expression', idx: 2, title: 'Veido išraiška',
+      meaning: 'Suraukta kakta, įsitempimas, išgąsčio ar skausmo išraiška.' },
+    { id: 'body-language', idx: 3, title: 'Kūno kalba',
+      meaning: 'Blaškymasis, sukinėjimasis, saugo skaudamą vietą, atsitraukimas.' },
+    { id: 'behavioural-change', idx: 4, title: 'Elgesio pokytis',
+      meaning: 'Atsisako valgyti, neįprastas elgesys, sumišimas.' },
+    { id: 'physiological-change', idx: 5, title: 'Fiziologiniai pokyčiai',
+      meaning: 'Temperatūros, pulso, kraujospūdžio pokyčiai, prakaitavimas, paraudimas ar išblyškimas.' },
+    { id: 'physical-changes', idx: 6, title: 'Fiziniai pakitimai',
+      meaning: 'Odos pažeidimai, pragulos, kontraktūros, ankstesnės traumos.' }
   ];
 
   const abbeyContainer = document.getElementById('abbey-items');
@@ -872,7 +880,7 @@
 
     const title = document.createElement('div');
     title.className = 'item-title';
-    title.innerHTML = `<strong>${item.title}</strong>`;
+    title.innerHTML = '<strong>' + item.title + '</strong>';
     row.appendChild(title);
 
     const meaning = document.createElement('div');
@@ -891,10 +899,10 @@
       input.value = val;
       label.appendChild(input);
       let text = '';
-      if (val === '0') text = '0 – Absent';
-      if (val === '1') text = '1 – Mild';
-      if (val === '2') text = '2 – Moderate';
-      if (val === '3') text = '3 – Severe';
+      if (val === '0') text = '0 – Nėra';
+      if (val === '1') text = '1 – Lengvi';
+      if (val === '2') text = '2 – Vidutiniai';
+      if (val === '3') text = '3 – Ryškūs';
       label.appendChild(document.createTextNode(text));
       radios.appendChild(label);
     });
@@ -936,59 +944,60 @@
       levelKey = 'severe';
     }
 
-    main.innerHTML = `<strong>Bendra Abbey suma: ${total} balai.</strong>`;
+    main.innerHTML = '<strong>Bendra Abbey suma: ' + total + ' balai.</strong>';
     let typeText = painType !== 'nepasirinkta'
-      ? `Pasirinktas skausmo tipas: <strong>${painType}</strong>.`
+      ? 'Pasirinktas skausmo tipas: ' + painType + '.'
       : 'Skausmo tipas nepasirinktas.';
     interp.innerHTML = text +
-      ` <span class="badge">Nepildytų klausimų: ${unanswered}</span><br>` +
+      ' <span class="badge">Nepildytų klausimų: ' + unanswered + '</span><br>' +
       typeText;
     box.style.display = 'block';
 
     showRecommendations(levelKey);
   }
 
-  // ---------- PAINAD ----------
+  /* PAINAD */
+
   const painadItems = [
     {
       id: 'breathing',
       idx: 1,
-      title: 'Breathing independent of vocalization',
-      meaning0: '0 – Normal',
-      meaning1: '1 – Occasional labored breathing; short period of hyperventilation',
-      meaning2: '2 – Noisy labored breathing; long period of hyperventilation; Cheyne–Stokes respirations'
+      title: 'Kvėpavimas (nepriklausomai nuo kalbėjimo)',
+      meaning0: '0 – Normalus kvėpavimas',
+      meaning1: '1 – Retkarčiais apsunkintas kvėpavimas, trumpas hiperventiliavimas',
+      meaning2: '2 – Garsiai apsunkintas kvėpavimas, ilgas hiperventiliavimas, Cheyne–Stokes kvėpavimas'
     },
     {
       id: 'negative-vocal',
       idx: 2,
-      title: 'Negative vocalization',
-      meaning0: '0 – None',
-      meaning1: '1 – Occasional moan or groan; low-level speech with negative/disapproving quality',
-      meaning2: '2 – Repeated troubled calling out; loud moaning or groaning; crying'
+      title: 'Neigiama vokalizacija',
+      meaning0: '0 – Nėra',
+      meaning1: '1 – Retkarčiais dejuoja, pūkščia, kalba žemu tonu, negatyviai',
+      meaning2: '2 – Kartotiniai garsūs dejavimai, verksmas, šauksmai'
     },
     {
       id: 'facial-exp',
       idx: 3,
-      title: 'Facial expression',
-      meaning0: '0 – Smiling or inexpressive',
-      meaning1: '1 – Sad, frightened, frown',
-      meaning2: '2 – Facial grimacing'
+      title: 'Veido išraiška',
+      meaning0: '0 – Šypsosi arba neutrali',
+      meaning1: '1 – Liūdna, išsigandusi, susiraukusi',
+      meaning2: '2 – Aiški grimasa'
     },
     {
       id: 'body-language',
       idx: 4,
-      title: 'Body language',
-      meaning0: '0 – Relaxed',
-      meaning1: '1 – Tense; distressed pacing; fidgeting',
-      meaning2: '2 – Rigid; fists clenched; knees pulled up; pulling or pushing away; striking out'
+      title: 'Kūno kalba',
+      meaning0: '0 – Atsipalaidavęs',
+      meaning1: '1 – Įtemptas, nerimastingas, fiksuotas žvilgsnis, blaškosi',
+      meaning2: '2 – Sustingęs, sugniaužti kumščiai, keliai pritraukti, ginasi rankomis'
     },
     {
       id: 'consolability',
       idx: 5,
-      title: 'Consolability',
-      meaning0: '0 – No need to console',
-      meaning1: '1 – Distracted or reassured by voice or touch',
-      meaning2: '2 – Unable to console, distract, or reassure'
+      title: 'Raminamumas',
+      meaning0: '0 – Nereikia raminti',
+      meaning1: '1 – Nusiramina balsu ar prisilietimu',
+      meaning2: '2 – Nepavyksta nuraminti'
     }
   ];
 
@@ -1003,15 +1012,15 @@
 
     const title = document.createElement('div');
     title.className = 'item-title';
-    title.innerHTML = `<strong>${item.title}</strong>`;
+    title.innerHTML = '<strong>' + item.title + '</strong>';
     row.appendChild(title);
 
     const meaning = document.createElement('div');
     meaning.className = 'item-meaning';
-    meaning.innerHTML = `
-      <div>${item.meaning0}</div>
-      <div>${item.meaning1}</div>
-      <div>${item.meaning2}</div>`;
+    meaning.innerHTML =
+      '<div>' + item.meaning0 + '</div>' +
+      '<div>' + item.meaning1 + '</div>' +
+      '<div>' + item.meaning2 + '</div>';
     row.appendChild(meaning);
 
     const radios = document.createElement('div');
@@ -1063,22 +1072,22 @@
       levelKey = 'severe';
     }
 
-    main.innerHTML = `<strong>Bendra PAINAD suma: ${total} balai.</strong>`;
+    main.innerHTML = '<strong>Bendra PAINAD suma: ' + total + ' balai.</strong>';
     interp.innerHTML = text +
-      ` <span class="badge">Nepildytų punktų: ${unanswered}</span>`;
+      ' <span class="badge">Nepildytų punktų: ' + unanswered + '</span>';
     box.style.display = 'block';
 
     showRecommendations(levelKey);
   }
 
-  // ---------- Iowa / VDS / Faces / NRS ----------
+  /* PAPRASTOS SKALĖS (Iowa, VDS, Faces, NRS) */
+
   function summarizeSimpleScales() {
     const iowaSel = document.querySelector('input[name="iowa-thermo"]:checked');
     let iowaText = iowaSel ? iowaSel.parentElement.textContent.trim() : 'nepasirinkta';
 
     const vdsSel = document.querySelector('input[name="vds"]:checked');
-    let vdsText = 'nepasirinkta';
-    if (vdsSel) vdsText = vdsSel.parentElement.textContent.trim();
+    let vdsText = vdsSel ? vdsSel.parentElement.textContent.trim() : 'nepasirinkta';
 
     const facesSel = document.querySelector('input[name="faces"]:checked');
     let facesText = facesSel ? facesSel.value : 'nepasirinkta';
@@ -1105,31 +1114,32 @@
     const interp = document.getElementById('simple-scales-interpretation');
 
     main.innerHTML =
-      `<strong>Iowa:</strong> ${iowaText}<br>` +
-      `<strong>VDS:</strong> ${vdsText}<br>` +
-      `<strong>Faces (FPS-R):</strong> ${facesText}<br>` +
-      `<strong>NRS:</strong> ${nrsVal} / 10 (${nrsCategory})`;
+      '<strong>Iowa:</strong> ' + iowaText + '<br>' +
+      '<strong>Žodinė skalė (VDS):</strong> ' + vdsText + '<br>' +
+      '<strong>Veidukų skalė (FPS-R):</strong> ' + facesText + '<br>' +
+      '<strong>NRS:</strong> ' + nrsVal + ' / 10 (' + nrsCategory + ')';
 
     interp.textContent =
-      'Skirtingos skalės pateikia tą patį skausmo intensyvumo įvertinimą skirtingomis formomis (žodžiais, skaičiais, vizualiai).';
+      'Skirtingos skalės pateikia tą patį skausmo intensyvumą skirtingu formatu (žodžiais, skaičiais, vizualiai).';
     box.style.display = 'block';
 
     showRecommendations(levelKey);
   }
 
-  // ---------- DVPRS ----------
+  /* DVPRS */
+
   const dvprsItems = [
-    { score: 0, text: 'No pain' },
-    { score: 1, text: 'Hardly notice pain' },
-    { score: 2, text: 'Notice pain, does not interfere with activities' },
-    { score: 3, text: 'Sometimes distracts me' },
-    { score: 4, text: 'Distracts me, can do usual activities' },
-    { score: 5, text: 'Interrupts some activities' },
-    { score: 6, text: 'Hard to ignore, avoid usual activities' },
-    { score: 7, text: 'Focus of attention, prevents doing daily activities' },
-    { score: 8, text: 'Awful, hard to do anything' },
-    { score: 9, text: 'Can’t bear the pain, unable to do anything' },
-    { score: 10, text: 'As bad as it could be, nothing else matters' }
+    { score: 0, text: '0 – Nėra skausmo.' },
+    { score: 1, text: '1 – Skausmą vos pastebiu, manęs beveik nevaržo.' },
+    { score: 2, text: '2 – Skausmą pastebiu, bet jis netrukdo mano veiklai.' },
+    { score: 3, text: '3 – Kartais blaško dėmesį, bet daugumą veiklų galiu atlikti.' },
+    { score: 4, text: '4 – Blaško dėmesį, bet vis dar galiu atlikti įprastą veiklą.' },
+    { score: 5, text: '5 – Kai kurių veiklų nebeatlieku dėl skausmo.' },
+    { score: 6, text: '6 – Sunku ignoruoti, vengiu įprastos veiklos.' },
+    { score: 7, text: '7 – Skausmas – pagrindinis dėmesio objektas, trukdo kasdienei veiklai.' },
+    { score: 8, text: '8 – Labai stiprus skausmas, sunku ką nors daryti.' },
+    { score: 9, text: '9 – Beveik nepakeliamas skausmas, beveik nieko nebegaliu daryti.' },
+    { score: 10,text: '10 – Blogiausias įsivaizduojamas skausmas, niekas kitas nebesvarbu.' }
   ];
 
   const dvprsContainer = document.getElementById('dvprs-options');
@@ -1149,7 +1159,7 @@
     input.value = item.score;
 
     const labelText = document.createElement('div');
-    labelText.innerHTML = `<span class="dvprs-score-badge">${item.score}</span> ${item.text}`;
+    labelText.innerHTML = '<span class="dvprs-score-badge">' + item.score + '</span> ' + item.text;
 
     div.appendChild(input);
     div.appendChild(labelText);
@@ -1163,7 +1173,7 @@
     const interp = document.getElementById('dvprs-result-interpretation');
 
     if (!selected) {
-      main.innerHTML = '<strong>Neparinktas joks DVPRS balas.</strong>';
+      main.innerHTML = '<strong>Nepasirinktas joks DVPRS balas.</strong>';
       interp.textContent = 'Pasirinkite skaičių nuo 0 iki 10.';
       box.style.display = 'block';
       return;
@@ -1178,25 +1188,26 @@
       category = 'Nėra skausmo.';
       levelKey = 'none';
     } else if (score <= 3) {
-      category = 'MILD (lengvas) skausmas.';
+      category = 'Lengvas skausmas (MILD).';
       levelKey = 'mild';
     } else if (score <= 6) {
-      category = 'MODERATE (vidutinio stiprumo) skausmas.';
+      category = 'Vidutinio stiprumo skausmas (MODERATE).';
       levelKey = 'moderate';
     } else {
-      category = 'SEVERE (stiprus) skausmas.';
+      category = 'Stiprus skausmas (SEVERE).';
       levelKey = 'severe';
     }
 
-    main.innerHTML = `<strong>DVPRS balas: ${score}</strong> – ${item ? item.text : ''}`;
-    interp.textContent =
-      `${category} Ši informacija padeda planuoti skausmo malšinimą (vaistai ir nefarmakologinės priemonės).`;
+    main.innerHTML = '<strong>DVPRS balas: ' + score + '</strong> – ' + (item ? item.text : '');
+    interp.textContent = category +
+      ' Ši informacija padeda parinkti tinkamą skausmo malšinimo intensyvumą (vaistus ir nefarmakologines priemones).';
     box.style.display = 'block';
 
     showRecommendations(levelKey);
   }
 
-  // ---------- REKOMENDACIJOS ----------
+  /* REKOMENDACIJOS */
+
   function showRecommendations(levelKey) {
     const card = document.getElementById('recommend-card');
     const main = document.getElementById('recommend-main');
@@ -1208,36 +1219,36 @@
     switch (levelKey) {
       case 'none':
         title = 'Skausmas nenustatytas arba minimalus.';
-        text = 'Tęskite įprastą stebėseną. Pakartotinį skausmo vertinimą planuokite pagal klinikinę situaciją ' +
+        text = 'Tęskite įprastą stebėseną. Pakartotinį vertinimą planuokite pagal klinikinę situaciją ' +
                '(pvz., prieš mobilizaciją, po intervencijos ar pagal skyriaus protokolą).';
         break;
       case 'mild':
         title = 'Lengvas skausmas.';
         text = 'Dažnai pakanka nefarmakologinių priemonių (patogi padėtis, poilsis, šaltis/šiluma pagal gydytojo nurodymus) ' +
-               'ir, jei yra gydytojo ord., bazinių analgetikų (pvz., paracetamolis, NVNU). Skausmą rekomenduojama ' +
-               'pakartotinai įvertinti po 30–60 min.';
+               'ir, jei yra gydytojo ord., bazinio analgetiko (pvz., paracetamolis, NVNU). ' +
+               'Skausmą rekomenduojama pakartotinai įvertinti po 30–60 min.';
         break;
       case 'moderate':
         title = 'Vidutinio stiprumo skausmas.';
         text = 'Dažnai reikalingas kombinuotas gydymas: bazinis analgetikas (paracetamolis) + NVNU ar kitas gydytojo paskirtas vaistas. ' +
-               'Apsvarstykite papildomas nefarmakologines priemones, mobilizacijos korekciją. Skausmą pakartotinai įvertinkite ' +
-               'po 30–60 min. ir koreguokite planą pagal efektą.';
+               'Apsvarstykite papildomas nefarmakologines priemones, mobilizacijos koregavimą. ' +
+               'Skausmą pakartotinai įvertinkite po 30–60 min. ir koreguokite planą pagal efektą.';
         break;
       case 'severe':
       default:
         title = 'Stiprus skausmas.';
         text = 'Reikalingas intensyvesnis skausmo malšinimas pagal gydytojo paskyrimą (galimi parenteraliniai analgetikai, opioidai). ' +
-               'Būtina dažna stebėsena – skausmą pakartotinai vertinkite maždaug po 30 min. ir tol, kol skausmas sumažėja ' +
-               'iki priimtino lygio. Apsvarstykite papildomas nefarmakologines priemones, paciento prioritetus ir individualų planą.';
+               'Būtina dažna stebėsena – skausmą pakartotinai vertinkite maždaug po 30 min. ir tol, kol skausmas sumažėja iki priimtino lygio. ' +
+               'Apsvarstykite papildomas nefarmakologines priemones, paciento prioritetus ir individualų skausmo valdymo planą.';
         break;
     }
 
     main.textContent = title;
-    extra.textContent = text + ' Rekomendacijos yra pagalbinės ir nepakeičia gydytojo nurodymų bei jūsų įstaigos protokolų.';
+    extra.textContent = text +
+      ' Šios rekomendacijos yra pagalbinės ir nepakeičia gydytojo nurodymų bei jūsų įstaigos protokolų.';
     card.classList.remove('hidden');
   }
 
-  // ---------- NAUJAS PACIENTAS ----------
   function resetApp() {
     window.location.reload();
   }
