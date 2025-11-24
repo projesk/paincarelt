@@ -209,60 +209,61 @@
 
   <!-- SCREEN 2: MMSE FORMA -->
   <div id="screen-mmse" class="hidden">
-   <div class="card">
-  <h2>MMSE – Mini psichikos būklės įvertinimas</h2>
-  <p class="hint">
-    MMSE (Mini-Mental State Examination) – trumpas kognityvinių funkcijų testas, padedantis įvertinti:
-    orientaciją laike ir vietoje, dėmesį, atmintį, kalbą ir paprastus konstrukcinius gebėjimus.
-    <br><br>
-    Įvertinimas (orientaciniai intervalai):
-    <br>• <strong>24–30 balų</strong> – kognityvinių sutrikimų nenustatyta arba jie minimalūs
-    <br>• <strong>18–23 balai</strong> – lengvi kognityviniai sutrikimai
-    <br>• <strong>0–17 balų</strong> – ryškūs kognityviniai sutrikimai
-    <br><br>
-    Kiekvienam punktui pažymėkite <strong>„Teisingai (1 balas)“</strong>, jei užduotis atlikta teisingai,
-    arba <strong>„Neteisingai / neatliko (0 balų)“</strong>, jei ne.
-    Paspaudus <strong>„Apskaičiuoti MMSE ir tęsti“</strong>, bendra suma bus automatiškai panaudota
-    skausmo vertinimo algoritme.
-  </p>
+    <div class="card">
+      <h2>MMSE – Mini psichikos būklės įvertinimas</h2>
+      <p class="hint">
+        MMSE (Mini-Mental State Examination) – trumpas kognityvinių funkcijų testas, padedantis įvertinti
+        orientaciją laike ir vietoje, dėmesį, atmintį, kalbą ir paprastus konstrukcinius gebėjimus.
+        <br><br>
+        Orientacinė interpretacija:
+        <br>• <strong>24–30 balų</strong> – kognityvinių sutrikimų nenustatyta arba jie minimalūs
+        <br>• <strong>18–23 balai</strong> – lengvi kognityviniai sutrikimai
+        <br>• <strong>0–17 balų</strong> – ryškūs kognityviniai sutrikimai
+        <br><br>
+        Kiekvienam punktui pažymėkite <strong>„Teisingai (1 balas)“</strong>, jei užduotis atlikta teisingai,
+        arba <strong>„Neteisingai / neatliko (0 balų)“</strong>, jei ne.
+        Paspaudus <strong>„Apskaičiuoti MMSE ir tęsti“</strong>, bendra suma bus automatiškai panaudota
+        skausmo vertinimo algoritme.
+      </p>
 
-  <div class="radio-row radio-header">
-    <div>#</div>
-    <div>Punktas</div>
-    <div>Instrukcija / pavyzdys</div>
-    <div>Įvertinimas</div>
+      <div class="radio-row radio-header">
+        <div>#</div>
+        <div>Punktas</div>
+        <div>Instrukcija / pavyzdys</div>
+        <div>Įvertinimas</div>
+      </div>
+
+      <div id="mmse-form-items"></div>
+
+      <div class="mmse-figure-box">
+        <p>Pavyzdinė figūra, kurią pacientas turi nukopijuoti (2 persidengiantys penkiakampiai):</p>
+        <svg width="180" height="120" viewBox="0 0 180 120">
+          <polygon points="60,15 25,50 38,95 82,95 95,50"
+                   fill="none" stroke="#333" stroke-width="2"/>
+          <polygon points="110,25 75,60 88,105 132,105 145,60"
+                   fill="none" stroke="#333" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <button class="primary-btn" onclick="calculateMmseFromForm(true)">
+        Apskaičiuoti MMSE ir tęsti
+      </button>
+      <button class="secondary-btn" onclick="showScreen('screen-start')">
+        Grįžti į pradžią
+      </button>
+
+      <div id="mmse-form-result" style="display:none; margin-top:10px; border-left:4px solid #4b7bec; padding-left:12px;">
+        <p id="mmse-form-main"></p>
+      </div>
+
+      <p class="hint" style="margin-top:10px;">
+        Pilna lietuviška MMSE forma (PDF):<br>
+        <a href="http://www.loravita.lt/formos/MMSE.pdf" target="_blank">
+          MMSE (lietuviška forma, PDF)
+        </a>
+      </p>
+    </div>
   </div>
-
-  <div id="mmse-form-items"></div>
-
-  <div class="mmse-figure-box">
-    <p>Pavyzdinė figūra, kurią pacientas turi nukopijuoti (2 persidengiantys penkiakampiai):</p>
-    <svg width="180" height="120" viewBox="0 0 180 120">
-      <!-- pirmas penkiakampis -->
-      <polygon points="60,15 25,50 38,95 82,95 95,50"
-               fill="none" stroke="#333" stroke-width="2"/>
-      <!-- antras, šiek tiek paslinktas -->
-      <polygon points="110,25 75,60 88,105 132,105 145,60"
-               fill="none" stroke="#333" stroke-width="2"/>
-    </svg>
-  </div>
-
-  <button class="primary-btn" onclick="calculateMmseFromForm(true)">
-    Apskaičiuoti MMSE ir tęsti
-  </button>
-  <button class="secondary-btn" onclick="showScreen('screen-start')">
-    Grįžti į pradžią
-  </button>
-
-  <div id="mmse-form-result" style="display:none; margin-top:10px; border-left:4px solid #4b7bec; padding-left:12px;">
-    <p id="mmse-form-main"></p>
-  </div>
-
-  <p class="hint" style="margin-top:10px;">
-    Pilna lietuviška MMSE forma (PDF) remiantis originalia versija:
-    <a href="http://www.loravita.lt/formos/MMSE.pdf" target="_blank">MMSE (lietuviška forma, PDF)</a>
-  </p>
-</div>
 
   <!-- SCREEN 3: SKAUSMO SKALĖS -->
   <div id="screen-scales" class="hidden">
@@ -275,10 +276,11 @@
     <div id="branch-18-23" class="card hidden">
       <h3>Lengvi kognityviniai sutrikimai (MMSE 18–23)</h3>
       <p class="hint">
-        Ar pacientas geba suprasti ir naudoti paprastą vizualinę ir žodinę informaciją (skales, paveikslėlius, žodinius aprašymus)?
+        Ar pacientas geba suprasti ir naudoti paprastą vizualinę ir žodinę informaciją
+        (skales, paveikslėlius, žodinius aprašymus)?
       </p>
       <button class="primary-btn" onclick="branch1823('yes')">
-        Taip – naudoti vizualines skales (Iowa, VDS, Veidukai, NRS)
+        Taip – naudoti vizualines skales (Iowa, VDS, veidukai, NRS)
       </button>
       <button class="secondary-btn" onclick="branch1823('no')">
         Ne – naudoti PAINAD (stebėjimu pagrįsta skalė)
@@ -377,7 +379,7 @@
     <div id="card-dvprs" class="card hidden">
       <h2>DVPRS – skaitinė skausmo skalė su aprašymais</h2>
       <p class="hint">
-        Pacientas pasirenka skaičių nuo 0 iki 10, kuris daugiausiai atitinka jo skausmą ir poveikį veiklai.
+        Pacientas pasirenka skaičių nuo 0 iki 10, kuris labiausiai atitinka jo skausmą ir poveikį veiklai.
       </p>
       <div id="dvprs-options" class="dvprs-grid"></div>
       <button class="primary-btn" onclick="calculateDvprs()">Skaičiuoti DVPRS</button>
@@ -638,7 +640,7 @@
       title: 'Padėti ant grindų', meaning: 'Atlieka 3-ią komandą.' },
 
     { id: 'read-close-eyes', idx: 28, section: 'Skaitymas',
-      title: 'Perskaito ir įvykdo „UŽMERKITE AKIS“',
+      title: 'Perskaito ir įvykdo „UŽDARYKITE AKIS“',
       meaning: 'Perskaito frazę ir trumpam užmerkia akis.' },
 
     { id: 'write-sentence', idx: 29, section: 'Rašymas',
