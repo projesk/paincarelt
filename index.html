@@ -231,26 +231,44 @@
   <!--             PRADINIS EKRANAS              -->
   <!-- ========================================= -->
 
-  <div id="screen-start">
-    <div class="card">
-      <h1>PainCare LT</h1>
-      <p class="hint">
-        1 žingsnis – įveskite MMSE<br>
-        2 žingsnis – sistema parinks skausmo skalę<br>
-        3 žingsnis – gausite skausmo įvertinimą ir rekomendacijas
-      </p>
+ <div id="screen-start">
+  <div class="card">
+    <h1>PainCare LT</h1>
+    <p class="hint">
+      1 žingsnis – pasirinkite, kas pildo įvertinimą<br>
+      2 žingsnis – įveskite MMSE balus<br>
+      3 žingsnis – sistema parinks skausmo skalę ir pateiks rekomendacijas
+    </p>
 
-      <h2>1. Įveskite MMSE balus</h2>
+    <h2>Kas pildo įvertinimą?</h2>
+    <div class="radio-group">
       <label>
-        MMSE balai (0–30):
-        <input type="number" id="start-mmse" min="0" max="30" step="1">
+        <input type="radio" name="role" value="relative" onclick="setRole('relative')">
+        Artimasis
       </label>
-
-      <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
-      <button class="secondary-btn" onclick="goToMmseForm()">Nežinau – atlikti MMSE testą</button>
+      <label>
+        <input type="radio" name="role" value="hcp" onclick="setRole('hcp')">
+        Sveikatos priežiūros specialistas
+      </label>
     </div>
-  </div>
 
+    <hr>
+
+    <h2>1. Įveskite MMSE balus</h2>
+    <label>
+      MMSE balai (0–30):
+      <input type="number" id="start-mmse" min="0" max="30" step="1">
+    </label>
+
+    <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
+
+    <!-- Šitam mygtukui pridedam ID ir iš karto paslepiam -->
+    <button id="btn-mmse-test" class="secondary-btn" style="display:none;"
+            onclick="goToMmseForm()">
+      Nežinau – atlikti MMSE testą
+    </button>
+  </div>
+</div>
 
   <!-- ========================================= -->
   <!--                MMSE FORMA                 -->
@@ -614,6 +632,22 @@
 
 <script>
   let currentMmseScore = null;
+  let userRole = null; // 'relative' arba 'hcp'
+
+function setRole(role) {
+  userRole = role;
+  const mmseBtn = document.getElementById('btn-mmse-test');
+
+  if (!mmseBtn) return;
+
+  if (role === 'hcp') {
+    // Sveikatos priežiūros specialistas – rodom galimybę atlikti MMSE
+    mmseBtn.style.display = 'inline-block';
+  } else {
+    // Artimasis – MMSE testo atlikti negali, tik įvesti balą
+    mmseBtn.style.display = 'none';
+  }
+}
 
   function showScreen(id) {
     ['screen-start','screen-mmse','screen-scales'].forEach(s => {
@@ -623,14 +657,21 @@
     });
   }
 
-  function handleStartWithMmse() {
-    const val = Number(document.getElementById('start-mmse').value);
-    if (isNaN(val) || val < 0 || val > 30) {
-      alert('Įveskite MMSE balus nuo 0 iki 30.');
-      return;
-    }
-    currentMmseScore = val;
-    routeByMmse(val);
+ function handleStartWithMmse() {
+  if (!userRole) {
+    alert('Pasirinkite, kas pildo įvertinimą: artimasis ar sveikatos priežiūros specialistas.');
+    return;
+  }
+
+  const val = Number(document.getElementById('start-mmse').value);
+  if (isNaN(val) || val < 0 || val > 30) {
+    alert('Įveskite MMSE balus nuo 0 iki 30.');
+    return;
+  }
+
+  currentMmseScore = val;
+  routeByMmse(val);
+}
   }
 
   function goToMmseForm() {
@@ -765,7 +806,7 @@
       title: 'Padėti ant grindų', meaning: 'Atlieka 3-ią komandą.' },
 
     { id: 'read-close-eyes', idx: 28, section: 'Skaitymas',
-      title: 'Perskaito ir įvykdo „UŽDARYKITE AKIS“',
+      title: 'Perskaito ir įvykdo „UŽMERKITE AKIS“',
       meaning: 'Perskaito frazę ir trumpam užmerkia akis.' },
 
     { id: 'write-sentence', idx: 29, section: 'Rašymas',
