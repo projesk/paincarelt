@@ -103,15 +103,6 @@
       cursor: pointer;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #f1f2f6;
-      font-size: 0.78rem;
-      margin-left: 6px;
-    }
-
     .hidden { display:none; }
 
     .mmse-figure-box {
@@ -128,23 +119,7 @@
       color: #444;
     }
 
-    /* --- Iowa spalvų gradientas (žalia → raudona) --- */
-    .iowa-label {
-      border-radius: 999px;
-      padding: 4px 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.9rem;
-    }
-    .iowa-0 { background: #d4f8d4; }
-    .iowa-1 { background: #e6f9c7; }
-    .iowa-2 { background: #fdf3c4; }
-    .iowa-3 { background: #ffe0b5; }
-    .iowa-4 { background: #ffc9c9; }
-    .iowa-5 { background: #ffb3b3; }
-    .iowa-6 { background: #ff9e9e; }
-
+    /* Iowa spalvos */
     .iowa-row {
       display: flex;
       align-items: center;
@@ -165,8 +140,15 @@
       color: #000;
       font-size: 0.9rem;
     }
+    .iowa-0 { background: #d4f8d4; }
+    .iowa-1 { background: #e6f9c7; }
+    .iowa-2 { background: #fdf3c4; }
+    .iowa-3 { background: #ffe0b5; }
+    .iowa-4 { background: #ffc9c9; }
+    .iowa-5 { background: #ffb3b3; }
+    .iowa-6 { background: #ff9e9e; }
 
-    /* --- FPS-R veidukai --- */
+    /* FPS-R veidukai */
     .faces-option {
       font-size: 1.5rem;
       padding: 6px 10px;
@@ -180,12 +162,11 @@
       font-size: 0.85rem;
     }
 
-    /* DVPRS spalviniai blokai */
+    /* DVPRS spalvos */
     .dvprs-mild   { background: #e3f9e5; }
     .dvprs-moderate { background: #fff9e3; }
     .dvprs-severe { background: #ffe5e5; }
 
-    /* DVPRS horizontalus su veidukais */
     .dvprs-horizontal {
       display: flex;
       flex-direction: row;
@@ -202,10 +183,6 @@
       align-items: center;
       min-width: 170px;
     }
-    .dvprs-score-badge {
-      font-weight: 600;
-      margin-right: 4px;
-    }
     .dvprs-face {
       font-size: 2rem;
       margin-bottom: 4px;
@@ -216,9 +193,6 @@
         grid-template-columns: 30px 1fr;
         grid-template-rows: auto auto auto;
       }
-      .radio-row .item-title { grid-column: 2 / 3; }
-      .radio-row .item-meaning { grid-column: 2 / 3; }
-      .radio-row .radio-group { grid-column: 2 / 3; }
       .radio-header { display: none; }
     }
   </style>
@@ -227,55 +201,50 @@
 <body>
 <div class="app">
 
-  <!-- ========================================= -->
-  <!--             PRADINIS EKRANAS              -->
-  <!-- ========================================= -->
+  <!-- ================= PRADINIS EKRANAS ================= -->
 
-<div id="screen-start">
-  <div class="card">
-    <h1>PainCare LT</h1>
-    <p class="hint">
-      1 žingsnis – pasirinkite, kas pildo įvertinimą<br>
-      2 žingsnis – įveskite MMSE balus (jei žinomi)<br>
-      3 žingsnis – sistema parinks skausmo skalę ir pateiks rekomendacijas
-    </p>
+  <div id="screen-start">
+    <div class="card">
+      <h1>PainCare LT</h1>
+      <p class="hint">
+        1 žingsnis – pasirinkite, kas pildo įvertinimą<br>
+        2 žingsnis – įveskite MMSE balus (jei žinomi)<br>
+        3 žingsnis – sistema parinks skausmo skalę ir pateiks rekomendacijas
+      </p>
 
-    <h2>Kas pildo įvertinimą?</h2>
-    <div class="radio-group">
-      <label>
-        <input type="radio" name="role" value="relative" onclick="setRole('relative')">
-        Artimasis
-      </label>
-      <label>
-        <input type="radio" name="role" value="hcp" onclick="setRole('hcp')">
-        Sveikatos priežiūros specialistas
-      </label>
-    </div>
+      <h2>Kas pildo įvertinimą?</h2>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="role" value="relative" onclick="setRole('relative')">
+          Artimasis
+        </label>
+        <label>
+          <input type="radio" name="role" value="hcp" onclick="setRole('hcp')">
+          Sveikatos priežiūros specialistas
+        </label>
+      </div>
 
-    <!-- MMSE įvedimo dalis – iš pradžių paslėpta -->
-    <div id="mmse-input-section" class="hidden">
-      <hr>
-      <h2>1. Įveskite MMSE balus</h2>
-      <label>
-        MMSE balai (0–30):
-        <input type="number" id="start-mmse" min="0" max="30" step="1">
-      </label>
+      <!-- MMSE įvedimas – iš pradžių paslėptas -->
+      <div id="mmse-input-section" class="hidden">
+        <hr>
+        <h2>1. Įveskite MMSE balus</h2>
+        <label>
+          MMSE balai (0–30):
+          <input type="number" id="start-mmse" min="0" max="30" step="1">
+        </label>
 
-      <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
+        <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
 
-      <!-- Šitas mygtukas matomas tik HCP -->
-      <button id="btn-mmse-test" class="secondary-btn" style="display:none;"
-              onclick="goToMmseForm()">
-        Nežinau – atlikti MMSE testą
-      </button>
+        <!-- matomas tik HCP -->
+        <button id="btn-mmse-test" class="secondary-btn" style="display:none;"
+                onclick="goToMmseForm()">
+          Nežinau – atlikti MMSE testą
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-
-  <!-- ========================================= -->
-  <!--                MMSE FORMA                 -->
-  <!-- ========================================= -->
+  <!-- ================= MMSE EKRANAS ================= -->
 
   <div id="screen-mmse" class="hidden">
     <div class="card">
@@ -283,10 +252,9 @@
 
       <p class="hint">
         MMSE įvertina orientaciją, dėmesį, atmintį, kalbą ir konstrukcinius gebėjimus.<br><br>
-        Orientacinė interpretacija:<br>
-        • <strong>24–30</strong> – kognityvinių sutrikimų nėra / minimalūs<br>
-        • <strong>18–23</strong> – lengvi sutrikimai<br>
-        • <strong>0–17</strong> – ryškūs sutrikimai
+        • 24–30 – kognityvinių sutrikimų nėra / minimalūs<br>
+        • 18–23 – lengvi sutrikimai<br>
+        • 0–17 – ryškūs sutrikimai
       </p>
 
       <div class="radio-row radio-header">
@@ -329,10 +297,7 @@
     </div>
   </div>
 
-
-  <!-- ========================================= -->
-  <!--             SKAUSMO SKALĖS                -->
-  <!-- ========================================= -->
+  <!-- ================= SKALĖS EKRANAS ================= -->
 
   <div id="screen-scales" class="hidden">
 
@@ -341,152 +306,118 @@
       <p id="scale-intro" class="hint"></p>
     </div>
 
-    <!-- Šaka 18–23 -->
+    <!-- 18–23 -->
     <div id="branch-18-23" class="card hidden">
       <h3>Lengvi kognityviniai sutrikimai (MMSE 18–23)</h3>
-      <p class="hint">
-        Ar pacientas geba suprasti paprastą vizualinę ir žodinę informaciją?
-      </p>
-
+      <p class="hint">Ar pacientas geba suprasti paprastą vizualinę ir žodinę informaciją?</p>
       <button class="primary-btn" onclick="branch1823('yes')">
         Taip – vizualinės / žodinės skalės (Iowa, VDS, veidukai, NRS)
       </button>
-
       <button class="secondary-btn" onclick="branch1823('no')">
         Ne – PAINAD skalė
       </button>
     </div>
 
-    <!-- Šaka 0–17 -->
+    <!-- 0–17 -->
     <div id="branch-0-17" class="card hidden">
       <h3>Sunkūs sutrikimai (MMSE 0–17)</h3>
       <p class="hint">Pasirinkite pagal situaciją:</p>
-
-      <button class="primary-btn" onclick="branch017Quick()">
-        Greitas įvertinimas – Abbey skalė
-      </button>
-
-      <button class="secondary-btn" onclick="branch017Detailed()">
-        Išsamus stebėjimu pagrįstas vertinimas – PAIC-15
-      </button>
+      <button class="primary-btn" onclick="branch017Quick()">Greitas įvertinimas – Abbey</button>
+      <button class="secondary-btn" onclick="branch017Detailed()">Išsamus – PAIC-15</button>
     </div>
 
-    <!-- PAIC apmokymo klausimas -->
     <div id="branch-0-17-paic" class="card hidden">
       <h3>Išsamus vertinimas</h3>
       <p class="hint">Ar mokate naudoti PAIC-15?</p>
-
-      <button class="primary-btn" onclick="branch017Paic('yes')">
-        Taip – PAIC-15
-      </button>
-      <button class="secondary-btn" onclick="branch017Paic('no')">
-        Ne – Abbey skalė
-      </button>
-
+      <button class="primary-btn" onclick="branch017Paic('yes')">Taip – PAIC-15</button>
+      <button class="secondary-btn" onclick="branch017Paic('no')">Ne – Abbey</button>
       <p class="hint">
-        PAIC-15 mokymai:  
+        PAIC-15 mokymai:
         <a href="https://paic15.org/en/1" target="_blank">https://paic15.org/en/1</a>
       </p>
     </div>
 
-    <!-- PAPRASTOS SKALĖS (Iowa/VDS/FPS/NRS) -->
+    <!-- PAPRASTOS SKALĖS -->
 
     <div id="card-simple" class="card hidden">
-      <h2>Iowa, žodinė, veidukai, NRS</h2>
+      <h2>Iowa, žodinė skalė, veidukai, NRS</h2>
 
-      <!-- Iowa -->
       <h3>Iowa Pain Thermometer</h3>
       <p class="hint">Spalvos: žalia → raudona (nuo „neskauda“ iki „labai skauda“).</p>
 
       <div class="radio-group" style="flex-direction: column; gap:6px;">
-
         <label class="iowa-row">
           <span class="iowa-face">🙂</span>
           <input type="radio" name="iowa-thermo" value="0">
           <div class="iowa-bar iowa-0">0 – Nėra skausmo</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😊</span>
           <input type="radio" name="iowa-thermo" value="1">
           <div class="iowa-bar iowa-1">1 – Vos juntamas</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😐</span>
           <input type="radio" name="iowa-thermo" value="2">
           <div class="iowa-bar iowa-2">2 – Lengvas</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😕</span>
           <input type="radio" name="iowa-thermo" value="3">
-          <div class="iowa-bar iowa-3">3 – Vidutinio stiprumo</div>
+          <div class="iowa-bar iowa-3">3 – Vidutinis</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😣</span>
           <input type="radio" name="iowa-thermo" value="4">
           <div class="iowa-bar iowa-4">4 – Stiprus</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😫</span>
           <input type="radio" name="iowa-thermo" value="5">
           <div class="iowa-bar iowa-5">5 – Labai stiprus</div>
         </label>
-
         <label class="iowa-row">
           <span class="iowa-face">😭</span>
           <input type="radio" name="iowa-thermo" value="6">
-          <div class="iowa-bar iowa-6">6 – Smarkiausias įsivaizduojamas skausmas</div>
+          <div class="iowa-bar iowa-6">6 – Smarkiausias įmanomas skausmas</div>
         </label>
-
       </div>
 
       <hr>
 
-      <!-- VDS -->
       <h3>Žodinė skausmo skalė (VDS)</h3>
       <div class="radio-group">
-        <label><input type="radio" name="vds" value="0">0 – Nėra</label>
-        <label><input type="radio" name="vds" value="1">1 – Lengvas</label>
-        <label><input type="radio" name="vds" value="2">2 – Vidutinis</label>
-        <label><input type="radio" name="vds" value="3">3 – Stiprus</label>
+        <label><input type="radio" name="vds" value="0">0 – nėra</label>
+        <label><input type="radio" name="vds" value="1">1 – lengvas</label>
+        <label><input type="radio" name="vds" value="2">2 – vidutinis</label>
+        <label><input type="radio" name="vds" value="3">3 – stiprus</label>
       </div>
 
       <hr>
 
-      <!-- FPS-R -->
       <h3>Veidukų skalė (FPS-R)</h3>
       <p class="hint">Paprašykite paciento pasirinkti veiduką.</p>
-
       <div class="radio-group">
         <label class="faces-option">
           <input type="radio" name="faces" value="0">
           <span>🙂</span><span class="desc">Nėra skausmo</span>
         </label>
-
         <label class="faces-option">
           <input type="radio" name="faces" value="2">
           <span>😊</span><span class="desc">Labai lengvas</span>
         </label>
-
         <label class="faces-option">
           <input type="radio" name="faces" value="4">
           <span>😐</span><span class="desc">Lengvas</span>
         </label>
-
         <label class="faces-option">
           <input type="radio" name="faces" value="6">
           <span>😕</span><span class="desc">Vidutinis</span>
         </label>
-
         <label class="faces-option">
           <input type="radio" name="faces" value="8">
           <span>😣</span><span class="desc">Stiprus</span>
         </label>
-
         <label class="faces-option">
           <input type="radio" name="faces" value="10">
           <span>😭</span><span class="desc">Labai stiprus</span>
@@ -495,7 +426,6 @@
 
       <hr>
 
-      <!-- NRS -->
       <h3>NRS (0–10)</h3>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <input type="range" id="nrs-slider" min="0" max="10" value="0"
@@ -513,109 +443,72 @@
       </div>
     </div>
 
-
     <!-- DVPRS -->
 
     <div id="card-dvprs" class="card hidden">
       <h2>DVPRS (0–10)</h2>
       <p class="hint">Pasirinkite skaičių, veiduką ir aprašymą, labiausiai atitinkantį skausmą.</p>
-
       <div id="dvprs-options" class="dvprs-horizontal"></div>
-
       <button class="primary-btn" onclick="calculateDvprs()">Skaičiuoti</button>
-
       <div id="dvprs-result-box" style="display:none;">
         <p id="dvprs-result-main"></p>
         <p id="dvprs-result-interpretation" class="hint"></p>
       </div>
     </div>
 
-
     <!-- PAINAD -->
 
     <div id="card-painad" class="card hidden">
       <h2>PAINAD (0–10)</h2>
       <p class="hint">Vertinama stebint pacientą ~5 minutes.</p>
-
       <div class="radio-row radio-header">
-        <div>#</div>
-        <div>Kategorija</div>
-        <div>Pavyzdžiai</div>
-        <div>Balai</div>
+        <div>#</div><div>Kategorija</div><div>Pavyzdžiai</div><div>Balai</div>
       </div>
-
       <div id="painad-items"></div>
-
-      <button class="primary-btn" onclick="calculatePainad()">
-        Skaičiuoti PAINAD
-      </button>
-
+      <button class="primary-btn" onclick="calculatePainad()">Skaičiuoti PAINAD</button>
       <div id="painad-result-box" style="display:none;">
         <p id="painad-result-main"></p>
         <p id="painad-result-interpretation" class="hint"></p>
       </div>
     </div>
 
-
     <!-- PAIC-15 -->
 
     <div id="card-paic" class="card hidden">
       <h2>PAIC-15</h2>
       <p class="hint">0 – nėra, 1 – šiek tiek, 2 – vidutiniškai, 3 – ryškiai, X – nevertinta</p>
-
       <div class="radio-row radio-header">
-        <div>#</div>
-        <div>Požymis</div>
-        <div>Paaiškinimas</div>
-        <div>Balai</div>
+        <div>#</div><div>Požymis</div><div>Paaiškinimas</div><div>Balai</div>
       </div>
-
       <div id="paic-items"></div>
-
-      <button class="primary-btn" onclick="calculatePaic()">
-        Skaičiuoti PAIC
-      </button>
-
+      <button class="primary-btn" onclick="calculatePaic()">Skaičiuoti PAIC</button>
       <div id="paic-result-box" style="display:none;">
         <p id="paic-result-main"></p>
         <p id="paic-result-interpretation" class="hint"></p>
       </div>
     </div>
 
-
     <!-- ABBEY -->
 
     <div id="card-abbey" class="card hidden">
       <h2>Abbey skausmo skalė</h2>
-
       <p class="hint">0 – nėra, 1 – lengvas, 2 – vidutinis, 3 – ryškus.</p>
-
       <div class="radio-row radio-header">
-        <div>#</div>
-        <div>Požymis</div>
-        <div>Pavyzdžiai</div>
-        <div>Balai</div>
+        <div>#</div><div>Požymis</div><div>Pavyzdžiai</div><div>Balai</div>
       </div>
-
       <div id="abbey-items"></div>
-
       <h3>Skausmo tipas</h3>
       <div class="radio-group">
         <label><input type="radio" name="abbey-type" value="Chronic">Lėtinis</label>
         <label><input type="radio" name="abbey-type" value="Acute">Ūminis</label>
         <label><input type="radio" name="abbey-type" value="Acute on chronic">Ūminis lėtinio fone</label>
       </div>
-
-      <button class="primary-btn" onclick="calculateAbbey()">
-        Skaičiuoti Abbey
-      </button>
-
+      <button class="primary-btn" onclick="calculateAbbey()">Skaičiuoti Abbey</button>
       <div id="abbey-result-box" style="display:none;">
         <p id="abbey-result-main"></p>
         <p id="abbey-result-interpretation" class="hint"></p>
       </div>
     </div>
-
 
     <!-- REKOMENDACIJOS -->
 
@@ -628,33 +521,22 @@
     <div class="card">
       <button class="primary-btn" onclick="resetApp()">Naujas pacientas</button>
     </div>
-
-  </div> <!-- end screen-scales -->
-</div> <!-- end app -->
-
+  </div>
+</div>
 
 <script>
-   let currentMmseScore = null;
+  let currentMmseScore = null;
   let userRole = null; // 'relative' arba 'hcp'
 
   function setRole(role) {
     userRole = role;
-
     const mmseSection = document.getElementById('mmse-input-section');
     const mmseBtn = document.getElementById('btn-mmse-test');
 
-    // kai tik pasirenkam vaidmenį – parodom MMSE įvedimo bloką
-    if (mmseSection) {
-      mmseSection.classList.remove('hidden');
-    }
-
-    // mygtukas MMSE testui matomas tik sveikatos priežiūros specialistui
+    if (mmseSection) mmseSection.classList.remove('hidden');
     if (mmseBtn) {
-      if (role === 'hcp') {
-        mmseBtn.style.display = 'inline-block';
-      } else {
-        mmseBtn.style.display = 'none';
-      }
+      if (role === 'hcp') mmseBtn.style.display = 'inline-block';
+      else mmseBtn.style.display = 'none';
     }
   }
 
@@ -666,91 +548,25 @@
     });
   }
 
- function handleStartWithMmse() {
-  if (!userRole) {
-    alert('Pasirinkite, kas pildo įvertinimą: artimasis ar sveikatos priežiūros specialistas.');
-    return;
-  }
-
-  const val = Number(document.getElementById('start-mmse').value);
-  if (isNaN(val) || val < 0 || val > 30) {
-    alert('Įveskite MMSE balus nuo 0 iki 30.');
-    return;
-  }
-
-  currentMmseScore = val;
-  routeByMmse(val);
-}
+  function handleStartWithMmse() {
+    if (!userRole) {
+      alert('Pasirinkite, kas pildo įvertinimą: artimasis ar sveikatos priežiūros specialistas.');
+      return;
+    }
+    const val = Number(document.getElementById('start-mmse').value);
+    if (isNaN(val) || val < 0 || val > 30) {
+      alert('Įveskite MMSE balus nuo 0 iki 30.');
+      return;
+    }
+    currentMmseScore = val;
+    routeByMmse(val);
   }
 
   function goToMmseForm() {
     showScreen('screen-mmse');
   }
 
-  /* ===================== MMSE routing ===================== */
-
-  function routeByMmse(score) {
-    const intro = document.getElementById('scale-intro');
-
-    [
-      'card-simple','card-dvprs','card-painad','card-paic','card-abbey',
-      'recommend-card','branch-18-23','branch-0-17','branch-0-17-paic'
-    ].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('hidden');
-    });
-
-    if (score >= 24) {
-      intro.textContent =
-        `MMSE ${score} – kognityvinių sutrikimų nėra. Rekomenduojama DVPRS skalė.`;
-      document.getElementById('card-dvprs').classList.remove('hidden');
-    } else if (score >= 18) {
-      intro.textContent =
-        `MMSE ${score} – lengvi sutrikimai. Įvertinkite, ar pacientas supranta vizualinę/žodinę informaciją.`;
-      document.getElementById('branch-18-23').classList.remove('hidden');
-    } else {
-      intro.textContent =
-        `MMSE ${score} – sunkūs sutrikimai. Rekomenduojama Abbey arba PAIC-15 skalė.`;
-      document.getElementById('branch-0-17').classList.remove('hidden');
-    }
-
-    showScreen('screen-scales');
-  }
-
-  function branch1823(option) {
-    document.getElementById('card-simple').classList.add('hidden');
-    document.getElementById('card-painad').classList.add('hidden');
-
-    if (option === 'yes') {
-      document.getElementById('card-simple').classList.remove('hidden');
-    } else {
-      document.getElementById('card-painad').classList.remove('hidden');
-    }
-  }
-
-  function branch017Quick() {
-    document.getElementById('branch-0-17-paic').classList.add('hidden');
-    document.getElementById('card-paic').classList.add('hidden');
-    document.getElementById('card-abbey').classList.remove('hidden');
-  }
-
-  function branch017Detailed() {
-    document.getElementById('branch-0-17-paic').classList.remove('hidden');
-  }
-
-  function branch017Paic(option) {
-    document.getElementById('card-paic').classList.add('hidden');
-    document.getElementById('card-abbey').classList.add('hidden');
-
-    if (option === 'yes') {
-      document.getElementById('card-paic').classList.remove('hidden');
-    } else {
-      document.getElementById('card-abbey').classList.remove('hidden');
-    }
-  }
-
-  /* ===================== MMSE formos sugeneravimas ===================== */
-
+  /* ===== MMSE formos generavimas ir skaičiavimas ===== */
   const mmseFormItems = [
     { id: 'year', idx: 1,  section: 'Orientacija laike',
       title: 'Metai', meaning: 'Teisingai pasako, kokie dabar metai.' },
@@ -815,7 +631,7 @@
       title: 'Padėti ant grindų', meaning: 'Atlieka 3-ią komandą.' },
 
     { id: 'read-close-eyes', idx: 28, section: 'Skaitymas',
-      title: 'Perskaito ir įvykdo „UŽMERKITE AKIS“',
+      title: 'Perskaito ir įvykdo „UŽDARYKITE AKIS“',
       meaning: 'Perskaito frazę ir trumpam užmerkia akis.' },
 
     { id: 'write-sentence', idx: 29, section: 'Rašymas',
@@ -839,62 +655,80 @@
       secTitle.style.color = '#333';
       mmseFormContainer.appendChild(secTitle);
     }
-
     const row = document.createElement('div');
     row.className = 'radio-row';
-
-    const num = document.createElement('div');
-    num.textContent = item.idx;
-    row.appendChild(num);
-
-    const title = document.createElement('div');
-    title.className = 'item-title';
-    title.innerHTML = '<strong>' + item.title + '</strong>';
-    row.appendChild(title);
-
-    const meaning = document.createElement('div');
-    meaning.className = 'item-meaning';
-    meaning.textContent = item.meaning;
-    row.appendChild(meaning);
-
-    const radios = document.createElement('div');
-    radios.className = 'radio-group';
-
-    ['1','0'].forEach(val => {
-      const label = document.createElement('label');
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.name = 'mmse-' + item.id;
-      input.value = val;
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(
-        val === '1' ? 'Teisingai (1 balas)' : 'Neteisingai / neatliko (0 balų)'
-      ));
-      radios.appendChild(label);
-    });
-
-    row.appendChild(radios);
+    row.innerHTML = `
+      <div>${item.idx}</div>
+      <div><strong>${item.title}</strong></div>
+      <div>${item.meaning}</div>
+      <div class="radio-group">
+        <label><input type="radio" name="mmse-${item.id}" value="1">Teisingai (1 balas)</label>
+        <label><input type="radio" name="mmse-${item.id}" value="0">Neteisingai / neatliko (0 balų)</label>
+      </div>
+    `;
     mmseFormContainer.appendChild(row);
   });
 
   function calculateMmseFromForm(continueToScales) {
     let total = 0;
     mmseFormItems.forEach(item => {
-      const selected = document.querySelector('input[name="mmse-' + item.id + '"]:checked');
+      const selected = document.querySelector(`input[name="mmse-${item.id}"]:checked`);
       if (!selected) return;
       total += Number(selected.value);
     });
-
     currentMmseScore = total;
     document.getElementById('mmse-form-main').innerHTML =
       `<strong>MMSE suma: ${total} balai.</strong>`;
     document.getElementById('mmse-form-result').style.display = 'block';
-
     if (continueToScales) routeByMmse(total);
   }
 
-  /* ===================== PAPRASTOS SKALĖS ===================== */
+  /* ===== Routing pagal MMSE ===== */
+  function routeByMmse(score) {
+    const intro = document.getElementById('scale-intro');
+    ['card-simple','card-dvprs','card-painad','card-paic','card-abbey',
+     'recommend-card','branch-18-23','branch-0-17','branch-0-17-paic']
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
 
+    if (score >= 24) {
+      intro.textContent = `MMSE ${score} – kognityvinių sutrikimų nėra. Rekomenduojama DVPRS skalė.`;
+      document.getElementById('card-dvprs').classList.remove('hidden');
+    } else if (score >= 18) {
+      intro.textContent = `MMSE ${score} – lengvi sutrikimai. Įvertinkite, ar pacientas supranta vizualinę/žodinę informaciją.`;
+      document.getElementById('branch-18-23').classList.remove('hidden');
+    } else {
+      intro.textContent = `MMSE ${score} – sunkūs sutrikimai. Rekomenduojama Abbey arba PAIC-15 skalė.`;
+      document.getElementById('branch-0-17').classList.remove('hidden');
+    }
+    showScreen('screen-scales');
+  }
+
+  function branch1823(option) {
+    document.getElementById('card-simple').classList.add('hidden');
+    document.getElementById('card-painad').classList.add('hidden');
+    if (option === 'yes') document.getElementById('card-simple').classList.remove('hidden');
+    else document.getElementById('card-painad').classList.remove('hidden');
+  }
+
+  function branch017Quick() {
+    document.getElementById('branch-0-17-paic').classList.add('hidden');
+    document.getElementById('card-paic').classList.add('hidden');
+    document.getElementById('card-abbey').classList.remove('hidden');
+  }
+  function branch017Detailed() {
+    document.getElementById('branch-0-17-paic').classList.remove('hidden');
+  }
+  function branch017Paic(option) {
+    document.getElementById('card-paic').classList.add('hidden');
+    document.getElementById('card-abbey').classList.add('hidden');
+    if (option === 'yes') document.getElementById('card-paic').classList.remove('hidden');
+    else document.getElementById('card-abbey').classList.remove('hidden');
+  }
+
+  /* ===== Paprastos skalės (Iowa/VDS/FPS/NRS) ===== */
   function summarizeSimpleScales() {
     const iowaSel = document.querySelector('input[name="iowa-thermo"]:checked');
     const vdsSel = document.querySelector('input[name="vds"]:checked');
@@ -912,22 +746,19 @@
       <strong>Veidukai (FPS-R):</strong> ${(facesSel ? facesSel.value : '–')}<br>
       <strong>NRS:</strong> ${nrsVal}/10
     `;
-
     document.getElementById('simple-scales-interpretation').textContent =
       'Skirtingos skalės padeda patikrinti, ar įvertinimas nuoseklus.';
     document.getElementById('simple-scales-result').style.display = 'block';
-
     showRecommendations(levelKey);
   }
 
-  /* ===================== DVPRS ===================== */
-
+  /* ===== DVPRS ===== */
   const dvprsItems = [
     {score:0, text:'Nėra skausmo'},
     {score:1, text:'Vos jaučiamas skausmas'},
     {score:2, text:'Labai lengvas skausmas'},
     {score:3, text:'Lengvas skausmas'},
-    {score:4, text:'Vidutinio stiprumo skausmas'},
+    {score:4, text:'Vidutinis skausmas'},
     {score:5, text:'Vidutinis, trukdantis skausmas'},
     {score:6, text:'Skausmas riboja veiklą'},
     {score:7, text:'Stiprus skausmas'},
@@ -935,17 +766,11 @@
     {score:9, text:'Beveik nepakeliamas skausmas'},
     {score:10,text:'Blogiausias įsivaizduojamas skausmas'}
   ];
-
-  const dvprsFaces = ["🙂","🙂","🙂","🙂","😐","😐","😕","😣","😫","😭","😭"];
-
+  const dvprsFaces = ['🙂','🙂','🙂','🙂','😐','😐','😕','😣','😫','😭','😭'];
   const dvprsContainer = document.getElementById('dvprs-options');
   dvprsItems.forEach(item => {
     const div = document.createElement('div');
-    let c = '';
-    if (item.score <= 3) c='dvprs-mild';
-    else if (item.score <= 6) c='dvprs-moderate';
-    else c='dvprs-severe';
-
+    let c = item.score <= 3 ? 'dvprs-mild' : item.score <= 6 ? 'dvprs-moderate' : 'dvprs-severe';
     div.className = `dvprs-item ${c}`;
     div.innerHTML = `
       <span class="dvprs-face">${dvprsFaces[item.score]}</span>
@@ -954,87 +779,56 @@
     `;
     dvprsContainer.appendChild(div);
   });
-
   function calculateDvprs() {
     const sel = document.querySelector('input[name="dvprs-score"]:checked');
-    if (!sel) {
-      alert('Pasirinkite DVPRS balą.');
-      return;
-    }
+    if (!sel) { alert('Pasirinkite DVPRS balą.'); return; }
     const val = Number(sel.value);
-
     let levelKey = 'none';
     if (val >= 7) levelKey = 'severe';
     else if (val >= 4) levelKey = 'moderate';
     else if (val >= 1) levelKey = 'mild';
-
     document.getElementById('dvprs-result-main').innerHTML =
       `<strong>DVPRS:</strong> ${val} – ${dvprsItems[val].text}`;
     document.getElementById('dvprs-result-interpretation').textContent =
       'Pagal šį balą parenkamas skausmo malšinimo intensyvumas.';
     document.getElementById('dvprs-result-box').style.display = 'block';
-
     showRecommendations(levelKey);
   }
 
-  /* ===================== PAINAD ===================== */
-
+  /* ===== PAINAD ===== */
   const painadItems = [
     {
-      id:'breathing',
-      idx:1,
-      title:'Kvėpavimas (nepriklausomai nuo kalbėjimo)',
-      meaning0:'0 – Normalus kvėpavimas',
-      meaning1:'1 – Retkarčiais apsunkintas kvėpavimas, trumpas hiperventiliavimas',
-      meaning2:'2 – Garsiai apsunkintas kvėpavimas, ilgas hiperventiliavimas, Cheyne–Stokes kvėpavimas'
+      id:'breathing', idx:1, title:'Kvėpavimas',
+      m0:'0 – normalus', m1:'1 – retkarčiais apsunkintas', m2:'2 – ryškiai apsunkintas'
     },
     {
-      id:'negative-vocal',
-      idx:2,
-      title:'Neigiama vokalizacija',
-      meaning0:'0 – Nėra',
-      meaning1:'1 – Retkarčiais dejuoja, pūkščia, kalba žemu tonu, negatyviai',
-      meaning2:'2 – Kartotiniai garsūs dejavimai, verksmas, šauksmai'
+      id:'negative-vocal', idx:2, title:'Neigiama vokalizacija',
+      m0:'0 – nėra', m1:'1 – dejuoja, pūkščia, kalba žemu tonu, negatyviai',
+      m2:'2 – šaukia, verkia'
     },
     {
-      id:'facial-exp',
-      idx:3,
-      title:'Veido išraiška',
-      meaning0:'0 – Šypsosi arba neutrali',
-      meaning1:'1 – Liūdna, išsigandusi, susiraukusi',
-      meaning2:'2 – Aiški grimasa'
+      id:'facial-exp', idx:3, title:'Veido išraiška',
+      m0:'0 – neutrali / šypsosi', m1:'1 – liūdna, susiraukusi', m2:'2 – aiški grimasa'
     },
     {
-      id:'body-language',
-      idx:4,
-      title:'Kūno kalba',
-      meaning0:'0 – Atsipalaidavęs',
-      meaning1:'1 – Įtemptas, nerimastingas, fiksuotas žvilgsnis, blaškosi',
-      meaning2:'2 – Sustingęs, sugniaužti kumščiai, keliai pritraukti, ginasi rankomis'
+      id:'body-language', idx:4, title:'Kūno kalba',
+      m0:'0 – atsipalaidavęs', m1:'1 – įtemptas, nerimastingas',
+      m2:'2 – sustingęs, ginasi'
     },
     {
-      id:'consolability',
-      idx:5,
-      title:'Raminamumas',
-      meaning0:'0 – Nereikia raminti',
-      meaning1:'1 – Nusiramina balsu ar prisilietimu',
-      meaning2:'2 – Nepavyksta nuraminti'
+      id:'consolability', idx:5, title:'Raminamumas',
+      m0:'0 – nereikia raminti', m1:'1 – nusiramina balsu ar prisilietimu',
+      m2:'2 – nepavyksta nuraminti'
     }
   ];
-
   const painadContainer = document.getElementById('painad-items');
   painadItems.forEach(item => {
     const row = document.createElement('div');
     row.className = 'radio-row';
-
     row.innerHTML = `
       <div>${item.idx}</div>
-      <div class="item-title"><strong>${item.title}</strong></div>
-      <div class="item-meaning">
-        <div>${item.meaning0}</div>
-        <div>${item.meaning1}</div>
-        <div>${item.meaning2}</div>
-      </div>
+      <div><strong>${item.title}</strong></div>
+      <div>${item.m0}<br>${item.m1}<br>${item.m2}</div>
       <div class="radio-group">
         <label><input type="radio" name="painad-${item.id}" value="0">0</label>
         <label><input type="radio" name="painad-${item.id}" value="1">1</label>
@@ -1043,49 +837,42 @@
     `;
     painadContainer.appendChild(row);
   });
-
   function calculatePainad() {
     let total = 0;
     painadItems.forEach(item => {
-      const selected = document.querySelector('input[name="painad-' + item.id + '"]:checked');
-      if (!selected) return;
-      total += Number(selected.value);
+      const sel = document.querySelector(`input[name="painad-${item.id}"]:checked`);
+      if (sel) total += Number(sel.value);
     });
-
     let levelKey = 'none';
     if (total >= 7) levelKey = 'severe';
     else if (total >= 4) levelKey = 'moderate';
     else if (total >= 1) levelKey = 'mild';
-
     document.getElementById('painad-result-main').innerHTML =
-      `<strong>PAINAD suma:</strong> ${total} / 10`;
+      `<strong>PAINAD:</strong> ${total}/10`;
     document.getElementById('painad-result-interpretation').textContent =
-      '0 – skausmo požymių nėra; 1–3 – lengvas; 4–6 – vidutinis; 7–10 – stiprus skausmas.';
+      '0 – skausmo nėra; 1–3 – lengvas; 4–6 – vidutinis; 7–10 – stiprus skausmas.';
     document.getElementById('painad-result-box').style.display = 'block';
-
     showRecommendations(levelKey);
   }
 
-  /* ===================== PAIC-15 ===================== */
-
+  /* ===== PAIC-15 ===== */
   const paicItems = [
-    { id: '1',  title: 'Suraukta kakta' },
-    { id: '2',  title: 'Primerktos akys' },
-    { id: '3',  title: 'Pakelta viršutinė lūpa' },
-    { id: '4',  title: 'Praveriama burna' },
-    { id: '5',  title: 'Įtempta veido išraiška' },
-    { id: '6',  title: 'Sustabarėjimas' },
-    { id: '7',  title: 'Apsauginiai judesiai' },
-    { id: '8',  title: 'Priešinimasis priežiūrai' },
-    { id: '9',  title: 'Trinimas / masažavimas' },
-    { id: '10', title: 'Nerimastingumas' },
-    { id: '11', title: 'Skausmo žodžiai' },
-    { id: '12', title: 'Šaukimas' },
-    { id: '13', title: 'Dejavimas / stenėjimas' },
-    { id: '14', title: 'Murmėjimas' },
-    { id: '15', title: 'Skundimasis' }
+    { id:'1',  title:'Suraukta kakta' },
+    { id:'2',  title:'Primerktos akys' },
+    { id:'3',  title:'Pakelta viršutinė lūpa' },
+    { id:'4',  title:'Praveriama burna' },
+    { id:'5',  title:'Įtempta veido išraiška' },
+    { id:'6',  title:'Sustabarėjimas' },
+    { id:'7',  title:'Apsauginiai judesiai' },
+    { id:'8',  title:'Priešinimasis priežiūrai' },
+    { id:'9',  title:'Trinimas / masažavimas' },
+    { id:'10', title:'Nerimastingumas' },
+    { id:'11', title:'Skausmo žodžiai' },
+    { id:'12', title:'Šaukimas' },
+    { id:'13', title:'Dejavimas / stenėjimas' },
+    { id:'14', title:'Murmėjimas' },
+    { id:'15', title:'Skundimasis' }
   ];
-
   const paicContainer = document.getElementById('paic-items');
   let paicIdx = 1;
   paicItems.forEach(i => {
@@ -1093,8 +880,8 @@
     row.className = 'radio-row';
     row.innerHTML = `
       <div>${paicIdx++}</div>
-      <div class="item-title"><strong>${i.title}</strong></div>
-      <div class="item-meaning">Stebėkite požymį ir įvertinkite 0–3, X – nevertinta</div>
+      <div><strong>${i.title}</strong></div>
+      <div>Stebėkite požymį ir įvertinkite 0–3, X – nevertinta</div>
       <div class="radio-group">
         <label><input type="radio" name="paic-${i.id}" value="0">0</label>
         <label><input type="radio" name="paic-${i.id}" value="1">1</label>
@@ -1105,62 +892,45 @@
     `;
     paicContainer.appendChild(row);
   });
-
   function calculatePaic() {
     let total = 0;
     let notScored = 0;
-
     paicItems.forEach(i => {
       const sel = document.querySelector(`input[name="paic-${i.id}"]:checked`);
-      if (!sel) { notScored++; return; }
-      if (sel.value === 'x') { notScored++; return; }
+      if (!sel || sel.value === 'x') { notScored++; return; }
       total += Number(sel.value);
     });
-
     let levelKey = 'none';
     let text = '';
-    if (total <= 5) {
-      text = '0–5 – mažai įrodymų apie skausmą.';
-      levelKey = 'none';
-    } else if (total <= 15) {
-      text = '6–15 – galimas lengvas skausmas.';
-      levelKey = 'mild';
-    } else if (total <= 30) {
-      text = '16–30 – galimas vidutinio intensyvumo skausmas.';
-      levelKey = 'moderate';
-    } else {
-      text = '31–45 – galimas stiprus skausmas.';
-      levelKey = 'severe';
-    }
-
+    if (total <= 5) { text = '0–5 – mažai įrodymų apie skausmą.'; }
+    else if (total <= 15) { text = '6–15 – galimas lengvas skausmas.'; levelKey='mild'; }
+    else if (total <= 30) { text = '16–30 – galimas vidutinio intensyvumo skausmas.'; levelKey='moderate'; }
+    else { text = '31–45 – galimas stiprus skausmas.'; levelKey='severe'; }
     document.getElementById('paic-result-main').innerHTML =
-      `<strong>PAIC suma:</strong> ${total} / 45`;
+      `<strong>PAIC suma:</strong> ${total}/45`;
     document.getElementById('paic-result-interpretation').innerHTML =
       text + ` Nevertintų/X punktų: ${notScored}.`;
     document.getElementById('paic-result-box').style.display = 'block';
-
     showRecommendations(levelKey);
   }
 
-  /* ===================== ABBEY ===================== */
-
+  /* ===== ABBEY ===== */
   const abbeyItems = [
     { id:'vocalisation', idx:1, title:'Vokalizacija' },
     { id:'facial',       idx:2, title:'Veido išraiška' },
     { id:'body',         idx:3, title:'Kūno kalba' },
     { id:'behaviour',    idx:4, title:'Elgesio pokyčiai' },
     { id:'physio',       idx:5, title:'Fiziologiniai pokyčiai' },
-    { id:'skin',         idx:6, title:'Fiziniai pakitimai / oda' }
+    { id:'skin',         idx:6, title:'Oda / fiziniai pakitimai' }
   ];
-
   const abbeyContainer = document.getElementById('abbey-items');
   abbeyItems.forEach(item => {
     const row = document.createElement('div');
     row.className = 'radio-row';
     row.innerHTML = `
       <div>${item.idx}</div>
-      <div class="item-title"><strong>${item.title}</strong></div>
-      <div class="item-meaning">0 – nėra, 1 – lengvi, 2 – vidutiniai, 3 – ryškūs požymiai</div>
+      <div><strong>${item.title}</strong></div>
+      <div>0 – nėra, 1 – lengvi, 2 – vidutiniai, 3 – ryškūs požymiai</div>
       <div class="radio-group">
         <label><input type="radio" name="abbey-${item.id}" value="0">0</label>
         <label><input type="radio" name="abbey-${item.id}" value="1">1</label>
@@ -1170,45 +940,29 @@
     `;
     abbeyContainer.appendChild(row);
   });
-
   function calculateAbbey() {
     let sum = 0;
     abbeyItems.forEach(item => {
       const sel = document.querySelector(`input[name="abbey-${item.id}"]:checked`);
-      if (!sel) return;
-      sum += Number(sel.value);
+      if (sel) sum += Number(sel.value);
     });
-
     let levelKey = 'none';
     let text = '';
-    if (sum <= 2) {
-      text = '0–2 – skausmo nėra.';
-      levelKey = 'none';
-    } else if (sum <= 7) {
-      text = '3–7 – lengvas skausmas.';
-      levelKey = 'mild';
-    } else if (sum <= 13) {
-      text = '8–13 – vidutinio stiprumo skausmas.';
-      levelKey = 'moderate';
-    } else {
-      text = '14 ir daugiau – stiprus skausmas.';
-      levelKey = 'severe';
-    }
-
-    const typeSelected = document.querySelector('input[name="abbey-type"]:checked');
-    const painType = typeSelected ? typeSelected.value : 'nepasirinkta';
-
+    if (sum <= 2) { text = '0–2 – skausmo nėra.'; }
+    else if (sum <= 7) { text = '3–7 – lengvas skausmas.'; levelKey='mild'; }
+    else if (sum <= 13) { text = '8–13 – vidutinio stiprumo skausmas.'; levelKey='moderate'; }
+    else { text = '14+ – stiprus skausmas.'; levelKey='severe'; }
+    const typeSel = document.querySelector('input[name="abbey-type"]:checked');
+    const pType = typeSel ? typeSel.value : 'nepasirinkta';
     document.getElementById('abbey-result-main').innerHTML =
-      `<strong>Abbey suma:</strong> ${sum} / 18`;
+      `<strong>Abbey suma:</strong> ${sum}/18`;
     document.getElementById('abbey-result-interpretation').innerHTML =
-      text + `<br>Skausmo tipas: ${painType}.`;
+      text + `<br>Skausmo tipas: ${pType}.`;
     document.getElementById('abbey-result-box').style.display = 'block';
-
     showRecommendations(levelKey);
   }
 
-  /* ===================== REKOMENDACIJOS ===================== */
-
+  /* ===== Rekomendacijos + reset ===== */
   function showRecommendations(level) {
     const main = document.getElementById('recommend-main');
     const extra = document.getElementById('recommend-extra');
@@ -1219,22 +973,16 @@
       extra.textContent = 'Tęskite stebėseną, pakartotinai įvertinkite pagal klinikinę situaciją.';
     } else if (level === 'mild') {
       main.textContent = 'Lengvas skausmas.';
-      extra.textContent =
-        'Dažnai pakanka nefarmakologinių priemonių ir bazinio analgetiko (pvz., paracetamolis – jei yra gydytojo ord.).';
+      extra.textContent = 'Dažnai pakanka nefarmakologinių priemonių ir bazinio analgetiko (pvz., paracetamolis – jei yra gydytojo ord.).';
     } else if (level === 'moderate') {
       main.textContent = 'Vidutinio stiprumo skausmas.';
-      extra.textContent =
-        'Dažnai reikalingas kombinuotas gydymas (paracetamolis + NVNU ar kitas vaistas pagal gydytojo ord.), vertinkite efektą po 30–60 min.';
+      extra.textContent = 'Dažnai reikalingas kombinuotas gydymas (paracetamolis + NVNU ar kitas vaistas pagal gydytojo ord.), vertinkite efektą po 30–60 min.';
     } else if (level === 'severe') {
       main.textContent = 'Stiprus skausmas.';
-      extra.textContent =
-        'Reikalingas intensyvus skausmo malšinimas (galimi parenteraliniai analgetikai, opioidai pagal gydytojo ord.) ir dažna kontrolė.';
+      extra.textContent = 'Reikalingas intensyvus skausmo malšinimas (galimi parenteraliniai analgetikai, opioidai pagal gydytojo ord.) ir dažna kontrolė.';
     }
-
     card.classList.remove('hidden');
   }
-
-  /* ===================== RESET ===================== */
 
   function resetApp() {
     window.location.reload();
@@ -1242,3 +990,4 @@
 </script>
 </body>
 </html>
+
