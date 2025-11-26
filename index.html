@@ -231,12 +231,12 @@
   <!--             PRADINIS EKRANAS              -->
   <!-- ========================================= -->
 
- <div id="screen-start">
+<div id="screen-start">
   <div class="card">
     <h1>PainCare LT</h1>
     <p class="hint">
       1 žingsnis – pasirinkite, kas pildo įvertinimą<br>
-      2 žingsnis – įveskite MMSE balus<br>
+      2 žingsnis – įveskite MMSE balus (jei žinomi)<br>
       3 žingsnis – sistema parinks skausmo skalę ir pateiks rekomendacijas
     </p>
 
@@ -252,23 +252,26 @@
       </label>
     </div>
 
-    <hr>
+    <!-- MMSE įvedimo dalis – iš pradžių paslėpta -->
+    <div id="mmse-input-section" class="hidden">
+      <hr>
+      <h2>1. Įveskite MMSE balus</h2>
+      <label>
+        MMSE balai (0–30):
+        <input type="number" id="start-mmse" min="0" max="30" step="1">
+      </label>
 
-    <h2>1. Įveskite MMSE balus</h2>
-    <label>
-      MMSE balai (0–30):
-      <input type="number" id="start-mmse" min="0" max="30" step="1">
-    </label>
+      <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
 
-    <button class="primary-btn" onclick="handleStartWithMmse()">Tęsti</button>
-
-    <!-- Šitam mygtukui pridedam ID ir iš karto paslepiam -->
-    <button id="btn-mmse-test" class="secondary-btn" style="display:none;"
-            onclick="goToMmseForm()">
-      Nežinau – atlikti MMSE testą
-    </button>
+      <!-- Šitas mygtukas matomas tik HCP -->
+      <button id="btn-mmse-test" class="secondary-btn" style="display:none;"
+              onclick="goToMmseForm()">
+        Nežinau – atlikti MMSE testą
+      </button>
+    </div>
   </div>
 </div>
+
 
   <!-- ========================================= -->
   <!--                MMSE FORMA                 -->
@@ -631,23 +634,29 @@
 
 
 <script>
-  let currentMmseScore = null;
+   let currentMmseScore = null;
   let userRole = null; // 'relative' arba 'hcp'
 
-function setRole(role) {
-  userRole = role;
-  const mmseBtn = document.getElementById('btn-mmse-test');
+  function setRole(role) {
+    userRole = role;
 
-  if (!mmseBtn) return;
+    const mmseSection = document.getElementById('mmse-input-section');
+    const mmseBtn = document.getElementById('btn-mmse-test');
 
-  if (role === 'hcp') {
-    // Sveikatos priežiūros specialistas – rodom galimybę atlikti MMSE
-    mmseBtn.style.display = 'inline-block';
-  } else {
-    // Artimasis – MMSE testo atlikti negali, tik įvesti balą
-    mmseBtn.style.display = 'none';
+    // kai tik pasirenkam vaidmenį – parodom MMSE įvedimo bloką
+    if (mmseSection) {
+      mmseSection.classList.remove('hidden');
+    }
+
+    // mygtukas MMSE testui matomas tik sveikatos priežiūros specialistui
+    if (mmseBtn) {
+      if (role === 'hcp') {
+        mmseBtn.style.display = 'inline-block';
+      } else {
+        mmseBtn.style.display = 'none';
+      }
+    }
   }
-}
 
   function showScreen(id) {
     ['screen-start','screen-mmse','screen-scales'].forEach(s => {
