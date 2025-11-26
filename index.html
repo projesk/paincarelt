@@ -437,11 +437,17 @@
         Apskaičiuoti
       </button>
 
-      <div id="simple-scales-result" style="display:none;">
-        <p id="simple-scales-main"></p>
-        <p id="simple-scales-interpretation" class="hint"></p>
-      </div>
-    </div>
+    <div id="simple-scales-result" style="display:none;">
+  <p id="simple-scales-main"></p>
+  <p id="simple-scales-summary"><!-- apibendrintas --></p>
+  <p id="simple-scales-interpretation" class="hint"></p>
+  <p id="simple-scales-warning" class="hint" style="color:#b00020;"></p>
+  <div id="simple-scales-next" class="hidden" style="margin-top:6px;">
+  <button class="secondary-btn" onclick="goFromSimpleToPainad()">
+    Pereiti į PAINAD skalę
+  </button>
+</div>
+
 
     <!-- DVPRS -->
 
@@ -730,26 +736,94 @@
 
   /* ===== Paprastos skalės (Iowa/VDS/FPS/NRS) ===== */
   function summarizeSimpleScales() {
-    const iowaSel = document.querySelector('input[name="iowa-thermo"]:checked');
-    const vdsSel = document.querySelector('input[name="vds"]:checked');
-    const facesSel = document.querySelector('input[name="faces"]:checked');
-    const nrsVal = Number(document.getElementById('nrs-slider').value);
+  const iowaSel  = document.querySelector('input[name="iowa-thermo"]:checked');
+  const vdsSel   = document.querySelector('input[name="vds"]:checked');
+  const facesSel = document.querySelector('input[name="faces"]:checked');
+  const nrsVal   = Number(document.getElementById('nrs-slider').value);
 
-    let levelKey = 'none';
-    if (nrsVal >= 7) levelKey = 'severe';
-    else if (nrsVal >= 4) levelKey = 'moderate';
-    else if (nrsVal >= 1) levelKey = 'mild';
+  // 1) Parodome, ką pasirinko kiekvienoje skalėje (tekstu)
+  document.getElementById('simple-scales-main').innerHTML = `
+    <strong>Iowa:</strong> ${(iowaSel ? iowaSel.parentElement.textContent.trim() : '–')}<br>
+    <strong>VDS:</strong> ${(vdsSel ? vdsSel.parentElement.textContent.trim() : '–')}<br>
+    <strong>Veidukai (FPS-R):</strong> ${(facesSel ? facesSel.value : '–')}<br>
+    <strong>NRS:</strong> ${nrsVal}/10
+  `;
 
-    document.getElementById('simple-scales-main').innerHTML = `
-      <strong>Iowa:</strong> ${(iowaSel ? iowaSel.parentElement.textContent.trim() : '–')}<br>
-      <strong>VDS:</strong> ${(vdsSel ? vdsSel.parentElement.textContent.trim() : '–')}<br>
-      <strong>Veidukai (FPS-R):</strong> ${(facesSel ? facesSel.value : '–')}<br>
-      <strong>NRS:</strong> ${nrsVal}/10
-    `;
-    document.getElementById('simple-scales-interpretation').textContent =
-      'Skirtingos skalės padeda patikrinti, ar įvertinimas nuoseklus.';
-    document.getElementById('simple-scales-result').style.display = 'block';
-    showRecommendations(levelKey);
+  // 2) Paverskime viską į 0–10 skalę ir suskaičiuokime apibendrintą intensyvumą
+  const numericValues = [];
+
+  if (iowaSel) {
+    // Iowa 0–6 → paverčiam į 0–10
+    const iowaNum = Number(iowaSel.value) * (10 / 6);
+    numericValues.push(iowaNum);
+  }
+
+  if (vdsSel) {
+    // VDS 0–3 → paverčiam į 0–10
+    const vdsNum = Number(vdsSel.value) * (10 / 3);
+    numericValues.push(vdsNum);
+  }
+
+  if (facesSel) {
+    // FPS-R jau duoda 0,2,4,6,8,10
+    numericValues.push(Number(facesSel.value));
+  }
+
+  // NRS visada pasiimame (pagrindinė pacientų skaitinė skalė)
+  numericValues.push(nrsVal);
+
+  // jei dėl kažko tuščia (neturėtų taip būti) – saugiklis
+  if (!numericValues.length) {
+    alert('Pasirinkite bent vieną skalę prieš skaičiuodami.');
+    return;
+  }
+
+  const minVal = Math.min(...numericValues);
+  const maxVal = Math.max(...numericValues);
+
+  // Apibendrintas intensyvumas – imame aukščiausią reikšmę (saugumo sumetimais)
+  const combinedScore = Math.round(maxVal);
+
+  let levelKey = 'none';
+  if (combinedScore >= 7)       levelKey = 'severe';
+  else if (combinedScore >= 4)  levelKey = 'moderate';
+  else if (combinedScore >= 1)  levelKey = 'mild';
+
+  // Tekstas apie apibendrintą intensyvumą
+  document.getElementById('simple-scales-summary').textContent =
+    `Apibendrintas skausmo intensyvumas (0–10, pagal visas skales): apie ${combinedScore}/10.`;
+
+  // Papildomas paaiškinimas
+  document.getElementById('simple-scales-interpretation').textContent =
+    'Skirtingos skalės padeda patikrinti, ar įvertinimas nuoseklus. Apibendrintam lygiui imtame didžiausią iš gautų balų.';
+
+  // 3) ĮSPĖJIMAS, jei skalės labai skiriasi tarpusavyje
+  const warningEl = document.getElementById('simple-scales-warning');
+  const nextEl = document.getElementById('simple-scales-next');
+  warningEl.textContent = '';
+  nextEl.classList.add('hidden');
+
+if (maxVal - minVal >= 4) {
+  warningEl.textContent =
+    `ĮSPĖJIMAS: skirtingų skalių rezultatai labai skiriasi (nuo ${minVal.toFixed(1)} iki ${maxVal.toFixed(1)} balų 0–10 skalėje). ` +
+    'Rekomenduojama pakartotinai įvertinti skausmą ir apsvarstyti PAINAD skalę.';
+  nextEl.classList.remove('hidden');
+}
+    function goFromSimpleToPainad() {
+  const painadCard = document.getElementById('card-painad');
+  if (painadCard) {
+    painadCard.classList.remove('hidden');
+    painadCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+  }
+
+  // parodyti bloką
+  document.getElementById('simple-scales-result').style.display = 'block';
+
+  // 4) Rekomendacijos (pagal apibendrintą lygį)
+  showRecommendations(levelKey);
+}
   }
 
   /* ===== DVPRS ===== */
